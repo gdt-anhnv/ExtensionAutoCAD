@@ -50,6 +50,7 @@
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -148,10 +149,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\acrx_entry_point.cpp" />
     <ClCompile Include="Source\solid_entity.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\solid_entity.h" />
+    <ClInclude Include="Source\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="RoutingSolid.def" />
