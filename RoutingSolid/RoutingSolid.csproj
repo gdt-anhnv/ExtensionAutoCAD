@@ -71,6 +71,12 @@
     <Compile Include="Entity\Model.cs" />
     <Compile Include="Entity\Node.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Solid\Crossing.cs" />
+    <Compile Include="Solid\Elbow.cs" />
+    <Compile Include="Solid\Profile.cs" />
+    <Compile Include="Solid\SolidEntity.cs" />
+    <Compile Include="Solid\Straight.cs" />
+    <Compile Include="Solid\Tee.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
