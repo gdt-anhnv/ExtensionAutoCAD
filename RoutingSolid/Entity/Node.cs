@@ -12,7 +12,5 @@ namespace RoutingSolid.Entity
 	{
 		private AcadGeo.Point3d vertex;
 		private List<Connection> connections;
-
-
 	}
 }

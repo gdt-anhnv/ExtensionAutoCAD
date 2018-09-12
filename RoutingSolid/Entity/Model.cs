@@ -10,7 +10,7 @@ namespace RoutingSolid.Entity
 {
     class Model
     {
-		private
+		private BidirectionalGraph<Node, Connection> routers;
 
 
     }

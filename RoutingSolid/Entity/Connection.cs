@@ -13,6 +13,8 @@ namespace RoutingSolid.Entity
     class Connection : Edge<Node>
     {
 		public Connection(Node n1, Node n2) : base(n1, n2)
-		{ }
+		{
+
+		}
 	}
 }
