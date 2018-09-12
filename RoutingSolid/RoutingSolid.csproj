@@ -31,13 +31,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AcCoreMgd">
-      <HintPath>C:\Autodesk\Autodesk_ObjectARX_2018_Win_64_and_32_Bit\inc\AcCoreMgd.dll</HintPath>
+      <HintPath>D:\Hicas\Autodesk_ObjectARX_2018_Win_64_and_32_Bit\inc\AcCoreMgd.dll</HintPath>
     </Reference>
     <Reference Include="AcDbMgd">
-      <HintPath>C:\Autodesk\Autodesk_ObjectARX_2018_Win_64_and_32_Bit\inc\AcDbMgd.dll</HintPath>
+      <HintPath>D:\Hicas\Autodesk_ObjectARX_2018_Win_64_and_32_Bit\inc\AcDbMgd.dll</HintPath>
     </Reference>
     <Reference Include="AcMgd">
-      <HintPath>C:\Autodesk\Autodesk_ObjectARX_2018_Win_64_and_32_Bit\inc\AcMgd.dll</HintPath>
+      <HintPath>D:\Hicas\Autodesk_ObjectARX_2018_Win_64_and_32_Bit\inc\AcMgd.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
