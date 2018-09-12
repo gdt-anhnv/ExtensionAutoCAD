@@ -1,5 +1,5 @@
 @echo off
-setx ROUTING_SOLID_BUILD "D:\My Projects\RoutingSolid\Build"
+setx ROUTING_SOLID_BUILD "D:\ExtensionAutoCAD\RoutingSolid\Build"
 
 setx ROUTING_SOLID_ACADFUNCS "D:\My Projects\RoutingSolid\AcadFuncs\Source"
 
