@@ -1,8 +1,7 @@
-@echo off
-setx ROUTING_SOLID_BUILD "D:\ExtensionAutoCAD\RoutingSolid\Build"
+setx ROUTING_SOLID_BUILD "E:\Current_Project\ExtensionAutoCAD\RoutingSolid\Build"
 
-setx ROUTING_SOLID_ACADFUNCS "D:\My Projects\RoutingSolid\AcadFuncs\Source"
+setx ROUTING_SOLID_ACADFUNCS "E:\Current_Project\ExtensionAutoCAD\RoutingSolid\AcadFuncs\Source"
 
-setx OBJECTARX_2016 "C:\ObjectARX 2016"
+setx OBJECTARX_2016 "D:\Hicas\Autodesk_ObjectARX_2018_Win_64_and_32_Bit"
 
-setx OBJECTARX_2014	"C:\Autodesk\Autodesk_ObjectARX_2014_Win_64_and_32Bit"
+setx OBJECTARX_2014	"D:\Hicas\Autodesk_ObjectARX_2018_Win_64_and_32_Bit"
