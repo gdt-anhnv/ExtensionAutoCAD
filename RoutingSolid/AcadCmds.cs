@@ -20,6 +20,8 @@ namespace RoutingSolid
 		[CommandMethod("RoutingSolid")]
 		public void RoutingSolid()
 		{
+           
 		}
 	}
 }
+Class1.cs
