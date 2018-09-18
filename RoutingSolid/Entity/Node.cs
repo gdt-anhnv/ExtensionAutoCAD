@@ -6,29 +6,29 @@ using System.Threading.Tasks;
 
 using AcadGeo = Autodesk.AutoCAD.Geometry;
 
-namespace RoutingSolid.Entity
+namespace RoutingSolid
 {
 	class Node
 	{
-		private AcadGeo.Point3d vertex;
+		private AcadGeo.Point3d position;
 		private List<Connection> connections;
 
 		public Node(AcadGeo.Point3d ver)
 		{
-			vertex = ver;
+			position = ver;
 			connections = new List<Connection>();
 		}
 
 		//get set Vertex
-		public AcadGeo.Point3d Vertex
+		public AcadGeo.Point3d Position
 		{
 			get
 			{
-				return vertex;
+				return position;
 			}
 			set
 			{
-				vertex = value;
+				position = value;
 			}
 		}
 
@@ -42,6 +42,14 @@ namespace RoutingSolid.Entity
 			{
 				connections = value;
 			}
+		}
+
+		public Node GetConnection(Connection conn)
+		{
+			if (conn.Source == this)
+				return conn.Target;
+			else
+				return conn.Source;
 		}
 
 	}

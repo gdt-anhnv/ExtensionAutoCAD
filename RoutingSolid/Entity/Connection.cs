@@ -9,7 +9,7 @@ using QuickGraph;
 using AcadGeo = Autodesk.AutoCAD.Geometry;
 using AcadApp = Autodesk.AutoCAD.DatabaseServices;
 
-namespace RoutingSolid.Entity
+namespace RoutingSolid
 {
     class Connection : Edge<Node>
     {
@@ -19,16 +19,12 @@ namespace RoutingSolid.Entity
 
 		}
 
-		public AcadApp.Curve Curve
+		public AcadGeo.Point3d ConnectedPos(AcadGeo.Point3d pos)
 		{
-			get
-			{
-				return curve;
-			}
-			set
-			{
-				curve = value;
-			}
+			if (Source.Position.IsEqualTo(pos))
+				return Target.Position;
+			else
+				return Source.Position;
 		}
 	}
 }

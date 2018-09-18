@@ -67,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AcadCmds.cs" />
+    <Compile Include="AcadFuncs\AcadFuncs.cs" />
     <Compile Include="Entity\Connection.cs" />
     <Compile Include="Entity\Model.cs" />
     <Compile Include="Entity\Node.cs" />

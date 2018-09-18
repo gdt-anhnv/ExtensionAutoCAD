@@ -16,12 +16,27 @@ using Autodesk.AutoCAD.Windows;
 namespace RoutingSolid
 {
 	public class AcadCmds
-    {
+	{
 		[CommandMethod("RoutingSolid")]
 		public void RoutingSolid()
 		{
-           
+			try
+			{
+				AcadFuncs.GetEditor().WriteMessage("dev by [gdt.anv@gmail.com]");
+				Model model = new Model();
+				model.BuildModel();
+				model.BuildProfile();
+				model.BuildRoutingSolid();
+				model.RoutingSolid();
+			}
+			catch(Autodesk.AutoCAD.Runtime.Exception ex)
+			{
+
+			}
+			finally
+			{
+
+			}
 		}
 	}
 }
-Class1.cs
