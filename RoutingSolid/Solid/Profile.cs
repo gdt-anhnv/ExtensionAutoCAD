@@ -78,12 +78,20 @@ namespace RoutingSolid.Solid
 		public void Rotate(AcadGeo.Vector3d vec)
 		{
 			AcadGeo.Vector3d axe = vec.CrossProduct(normal_vector);
+			axe = axe.GetNormal();
 			if (axe.IsEqualTo(new AcadGeo.Vector3d(0.0, 0.0, 0.0)))
 				return;
 
 			double angle = normal_vector.GetAngleTo(vec, axe);
-			up_vector = up_vector.RotateBy(angle, axe);
-			normal_vector = normal_vector.RotateBy(angle, axe);
+			if (angle > AcadFuncs.kPI)
+				angle -= AcadFuncs.kPI;
+			if (angle > AcadFuncs.kPI * 0.5)
+				angle -= AcadFuncs.kPI;
+			AcadGeo.Tolerance tol = new AcadGeo.Tolerance(0.01, 0.01);
+			if (!up_vector.IsParallelTo(axe, tol))
+				up_vector = up_vector.RotateBy(angle, axe);
+			if (!normal_vector.IsParallelTo(axe, tol))
+				normal_vector = normal_vector.RotateBy(angle, axe);
 		}
 
 		public List<AcadDB.Region> GetRegions()

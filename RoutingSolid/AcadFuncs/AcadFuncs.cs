@@ -14,6 +14,8 @@ namespace RoutingSolid
 {
 	class AcadFuncs
 	{
+		public static double kPI = 3.14159265359;
+
 		public static AcadDB.Database GetActiveDB()
 		{
 			return AcadApp.DocumentManager.MdiActiveDocument.Database;

@@ -65,12 +65,43 @@ namespace RoutingSolid
 			}
 		}
 
+		private double AngleElbow(Node n)
+		{
+			if(ELBOW_CONNS != n.Connections.Count)
+			{
+				return AcadFuncs.kPI * 0.5;
+			}
+
+			AcadGeo.Vector3d vec1 = n.Position.IsEqualTo(n.Connections[0].Source.Position) ?
+				AcadFuncs.GetVec(n.Connections[0].Source.Position, n.Connections[0].Target.Position) :
+				AcadFuncs.GetVec(n.Connections[0].Target.Position, n.Connections[0].Source.Position);
+			AcadGeo.Vector3d vec2 = n.Position.IsEqualTo(n.Connections[1].Target.Position) ?
+				AcadFuncs.GetVec(n.Connections[1].Target.Position, n.Connections[1].Source.Position) :
+				AcadFuncs.GetVec(n.Connections[1].Source.Position, n.Connections[1].Target.Position);
+
+			return Math.Abs(vec1.GetAngleTo(vec2));
+		}
+
 		private Solid.Straight BuildStraight(Node sn, Node en)
 		{
 			double length = sn.Position.DistanceTo(en.Position);
 			AcadGeo.Vector3d vec = AcadFuncs.GetVec(sn.Position, en.Position);
 			Solid.Straight straight = new Solid.Straight();
-			if (sn.Connections.Count > 1)
+			if (ELBOW_CONNS == sn.Connections.Count)
+			{
+				double angle = AngleElbow(sn);
+				if (Math.Abs(Math.Sin(angle * 0.5)) < 0.001 || Math.Abs(Math.Cos(angle * 0.5)) < 0.001)
+				{
+					straight.StartPosition = sn.Position - vec * width;
+					length -= width;
+				}
+				else
+				{
+					straight.StartPosition = sn.Position - vec * (width / Math.Tan(angle * 0.5));
+					length -= width / Math.Tan(angle * 0.5);
+				}
+			}
+			else if (sn.Connections.Count > 1)
 			{
 				straight.StartPosition = sn.Position - vec * width;
 				length -= width;
@@ -78,7 +109,21 @@ namespace RoutingSolid
 			else
 				straight.StartPosition = sn.Position;
 
-			if (en.Connections.Count > 1)
+			if (ELBOW_CONNS == en.Connections.Count)
+			{
+				double angle = AngleElbow(en);
+				if (Math.Abs(Math.Sin(angle * 0.5)) < 0.001 || Math.Abs(Math.Cos(angle * 0.5)) < 0.001)
+				{
+					straight.EndPosition = en.Position + vec * width;
+					length -= width;
+				}
+				else
+				{
+					straight.EndPosition = en.Position + vec * (width / Math.Tan(angle * 0.5));
+					length -= width / Math.Tan(angle * 0.5);
+				}
+			}
+			else if (en.Connections.Count > 1)
 				straight.EndPosition = en.Position + vec * width;
 			else
 				straight.EndPosition = en.Position;
@@ -126,6 +171,7 @@ namespace RoutingSolid
 					elbow.BranchPos = bps;
 					elbow.Profile = CalculateProfile(n.Position);
 					elbow.Radius = width;
+					elbow.CalculateAngle();
 					solids.Add(elbow);
 				}
 				else if(TEE_CONNS == n.Connections.Count)
@@ -221,6 +267,11 @@ namespace RoutingSolid
 						route_pnts.Add(routes.ElementAt(i).Source.Position);
 				}
 
+				if(route_pnts.Count > 1)
+				{
+					ret_prol.Rotate(AcadFuncs.GetVec(route_pnts[0], route_pnts[1]));
+				}
+
 				for(int i = 0; i < route_pnts.Count() - 1; i++)
 				{
 					AcadGeo.Point3d sc = route_pnts.ElementAt(i);
@@ -229,7 +280,7 @@ namespace RoutingSolid
 					ret_prol.Translate(AcadFuncs.GetVec(dc, sc) * sc.DistanceTo(dc));
 					if (i > 0)
 					{
-						ret_prol.Rotate(AcadFuncs.GetVec(dc, sc));
+						ret_prol.Rotate(ret_prol.BasePoint.IsEqualTo(dc) ? AcadFuncs.GetVec(dc, sc) : AcadFuncs.GetVec(sc, dc));
 					}
 				}
 
@@ -250,13 +301,9 @@ namespace RoutingSolid
 			if (!AcadFuncs.GetDouble(ref width, "Nhập chiều rộng:"))
 				throw new Exception("Cancel process");
 
-			/*
-			double height = 0.0;
+			//double height = 0.0;
 			if (!AcadFuncs.GetDouble(ref height, "Nhập chiều cao:"))
 				throw new Exception("Cancel process");
-			*/
-
-			height = width;
 
 			if (!AcadFuncs.GetDouble(ref thickness, "Nhập độ dày:"))
 				throw new Exception("Cancel process");
@@ -308,6 +355,8 @@ namespace RoutingSolid
 		public void BuildModel()
 		{
 			List<AcadDB.ObjectId> obj_ids = AcadFuncs.PickEnts();
+			if (0 == obj_ids.Count)
+				throw new Exception("No Object is selected");
 			FilterEnts(ref obj_ids);
 
 			foreach(var id in obj_ids)
