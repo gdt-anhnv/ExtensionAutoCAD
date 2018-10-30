@@ -10,7 +10,7 @@
 #include <list>
 #include <vector>
 #include <math.h>
-
+#include <string>
 
 struct DimInfo
 {
@@ -152,10 +152,19 @@ struct MergeDimInfo
 	{}
 };
 
+enum MergeDimType
+{
+	kEqualLength,
+	kNaiveMerge
+};
+
+static MergeDimType MergeType(const std::list<MergeDimInfo>& dims);
+static std::wstring GetDimContent(const std::list<MergeDimInfo>& dims, MergeDimType type);
 void FastDim::DoMergeDim()
 {
 	auto obj_ids = ARXFuncs::GetObjIdsInSelected();
 	std::list<MergeDimInfo> len_dims = std::list<MergeDimInfo>();
+	double total_len = 0.0;
 	for (int i = 0; i < obj_ids.length();)
 	{
 		ObjectWrap<AcDbRotatedDimension> rot_dim(DBObject::OpenObjectById<AcDbRotatedDimension>(obj_ids[i]));
@@ -167,6 +176,7 @@ void FastDim::DoMergeDim()
 
 		double value = 0.0;
 		rot_dim.object->measurement(value);
+		total_len += value;
 		len_dims.push_back(MergeDimInfo(value,
 			rot_dim.object->xLine1Point(),
 			rot_dim.object->xLine2Point(),
@@ -178,13 +188,80 @@ void FastDim::DoMergeDim()
 	if (len_dims.size() < 2)
 		return;
 
+	//{
+	//	ObjectWrap<AcDbBlockTableRecord> model_space(DBObject::GetModelSpace(acdbHostApplicationServices()->workingDatabase()));
+	//	model_space.object->upgradeOpen();
+
+	//	for (auto iter = len_dims.begin(); iter != len_dims.end(); iter++)
+	//	{
+	//		AcDbPoint* pnt = new AcDbPoint(iter->dim_position);
+	//		model_space.object->appendAcDbEntity(pnt);
+	//		pnt->close();
+	//	}
+	//}
+	//return;
+
+	std::list<DimInfo> dim_infos = std::list<DimInfo>();
+	double rotation_dim = 0.0;
+	AcGeVector3d vec = AcGeVector3d::kYAxis;
+	{
+		ObjectWrap<AcDbRotatedDimension> rot_dim(DBObject::OpenObjectById<AcDbRotatedDimension>(obj_ids[0]));
+		vec = vec.rotateBy(rot_dim.object->rotation(), AcGeVector3d::kZAxis);
+		rotation_dim = rot_dim.object->rotation();
+	}
 	for (auto iter = len_dims.begin(); iter != len_dims.end(); iter++)
 	{
-		if (std::abs(iter->dim_length - len_dims.front().dim_length) > 0.01)
-			return;
+		dim_infos.push_back(DimInfo(iter->point_1, PointOnLine(iter->point_1, vec, len_dims.front().dim_position)));
+		dim_infos.push_back(DimInfo(iter->point_2, PointOnLine(iter->point_2, vec, len_dims.front().dim_position)));
 	}
 
+	//{
+	//	ObjectWrap<AcDbBlockTableRecord> model_space(DBObject::GetModelSpace(acdbHostApplicationServices()->workingDatabase()));
+	//	model_space.object->upgradeOpen();
 
+	//	for (auto iter = dim_infos.begin(); iter != dim_infos.end(); iter++)
+	//	{
+	//		AcDbPoint* pnt = new AcDbPoint(iter->dim_point);
+	//		model_space.object->appendAcDbEntity(pnt);
+	//		pnt->close();
+
+	//		AcDbPoint* pnt2 = new AcDbPoint(iter->origin_point);
+	//		model_space.object->appendAcDbEntity(pnt2);
+	//		pnt2->close();
+	//	}
+	//}
+	//return;
+
+	AcGePoint3d pivot_pnt = dim_infos.front().dim_point;
+	pivot_pnt = AcGePoint3d(pivot_pnt.x - vec.y * total_len * 2.0, pivot_pnt.y + vec.x * total_len * 2.0, 0.0);
+	dim_infos.sort([pivot_pnt](const DimInfo& di1, const DimInfo& di2) {
+		return di1.dim_point.distanceTo(pivot_pnt) > di2.dim_point.distanceTo(pivot_pnt);
+	});
+
+	AcDbRotatedDimension* ret_dim = new AcDbRotatedDimension(
+		rotation_dim,
+		dim_infos.front().origin_point,
+		dim_infos.back().origin_point,
+		dim_infos.front().dim_point);
+
+	MergeDimType dim_type = MergeType(len_dims);
+	if (MergeDimType::kEqualLength == dim_type)
+	{
+		ret_dim->setDimensionText(GetDimContent(len_dims, dim_type).c_str());
+	}
+
+	ObjectWrap<AcDbBlockTableRecord> model_space(DBObject::GetModelSpace(acdbHostApplicationServices()->workingDatabase()));
+	model_space.object->upgradeOpen();
+	model_space.object->appendAcDbEntity(ret_dim);
+
+	ret_dim->close();
+
+	for (int i = 0; i < obj_ids.length(); i++)
+	{
+		ObjectWrap<AcDbEntity> ent(DBObject::OpenObjectById<AcDbEntity>(obj_ids[i]));
+		ent.object->upgradeOpen();
+		ent.object->erase();
+	}
 }
 
 static AcGeVector3d DetectAlongVector(const AcDbObjectId& pl_id)
@@ -220,4 +297,31 @@ AcGePoint3d PointOnLine(const AcGePoint3d & bp, const AcGeVector3d & vec, const 
 	double ret_y = pnt.x * vec.x * vec.y + pnt.y * vec.y * vec.y - bp.x * vec.x * vec.y + bp.y * vec.x * vec.x;
 
 	return AcGePoint3d(ret_x, ret_y, 0.0);
+}
+
+MergeDimType MergeType(const std::list<MergeDimInfo>& dims)
+{
+	if (0 == dims.size())
+		throw std::exception("Failed");
+
+	for (auto iter = dims.begin(); iter != dims.end(); iter++)
+	{
+		if (std::abs(iter->dim_length - dims.front().dim_length) > 1.0)
+			return MergeDimType::kNaiveMerge;
+	}
+
+	return MergeDimType::kEqualLength;
+}
+
+std::wstring GetDimContent(const std::list<MergeDimInfo>& dims, MergeDimType type)
+{
+	std::wstring content = L"";
+	content.append(std::to_wstring(std::round(dims.front().dim_length)));
+	size_t index = content.find(L".");
+	content.erase(index);
+
+	content.append(L"x");
+	content.append(std::to_wstring(dims.size()));
+	content.append(L"=<>");
+	return content;
 }
