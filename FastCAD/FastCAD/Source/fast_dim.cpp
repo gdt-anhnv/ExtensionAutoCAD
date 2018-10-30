@@ -4,9 +4,12 @@
 #include "../../AcadFuncs/Source/Wrap/acad_obj_wrap.h"
 #include "../../AcadFuncs/Source/AcadFuncs/DBObject.h"
 #include "../../AcadFuncs/Source/AcadFuncs/Geometry.h"
+#include "../../AcadFuncs/Source/AcadFuncs.h"
 
 #include <iostream>
 #include <list>
+#include <vector>
+#include <math.h>
 
 
 struct DimInfo
@@ -52,13 +55,37 @@ void FastDim::DoFastDim()
 			return;
 
 		//detect 2 bound
+		AcGePoint3d min_pnt = AcGePoint3d::kOrigin;
+		AcGePoint3d max_pnt = AcGePoint3d::kOrigin;
 		{
 			auto pnts = GeoFuncs::GetListVertexOfPolyline(obj_ids[0]);
+			std::vector<DimInfo> pl_bound = std::vector<DimInfo>();
+			for (int i = 0; i < pnts.length(); i++)
+			{
+				pl_bound.push_back(DimInfo(pnts[i], PointOnLine(base_pnt, vec, pnts[i])));
+			}
 
+			pl_bound.push_back(DimInfo(pnts[0], PointOnLine(base_pnt, vec, pnts[0])));
+
+			double max_length = 0.0;
+			min_pnt = pl_bound.front().origin_point;
+			max_pnt = pl_bound.front().origin_point;
+
+			for (int i = 0; i < pl_bound.size() - 1; i++)
+			{
+				if (pl_bound[i].dim_point.distanceTo(pl_bound[i + 1].dim_point) > max_length)
+				{
+					max_length = pl_bound[i].dim_point.distanceTo(pl_bound[i + 1].dim_point);
+					min_pnt = pl_bound[i].origin_point;
+					max_pnt = pl_bound[i + 1].origin_point;
+				}
+			}
 		}
 
 		//Order circles
 		std::list<DimInfo> dim_infos = std::list<DimInfo>();
+		dim_infos.push_back(DimInfo(min_pnt, PointOnLine(base_pnt, vec, min_pnt)));
+		dim_infos.push_back(DimInfo(max_pnt, PointOnLine(base_pnt, vec, max_pnt)));
 		for (int i = 0; i < ent_ids.length(); i++)
 		{
 			ObjectWrap<AcDbCircle> circle(DBObject::OpenObjectById<AcDbCircle>(ent_ids[i]));
@@ -69,12 +96,95 @@ void FastDim::DoFastDim()
 			dim_infos.push_back(DimInfo(circle.object->center(), pnt));
 		}
 
+		AcGePoint3d cmp_pnt = PointOnLine(base_pnt, vec, min_pnt);
+		dim_infos.sort([cmp_pnt] (const DimInfo& di1, const DimInfo& di2) {
+			return di1.dim_point.distanceTo(cmp_pnt) < di2.dim_point.distanceTo(cmp_pnt);
+		});
+
 		//Dim position
+		ObjectWrap<AcDbBlockTableRecord> model_space(DBObject::GetModelSpace(acdbHostApplicationServices()->workingDatabase()));
+		model_space.object->upgradeOpen();
+		//for (auto iter = dim_infos.begin(); iter != dim_infos.end(); iter++)
+		//{
+		//	AcDbPoint* pnt = new AcDbPoint(iter->dim_point);
+		//	model_space.object->appendAcDbEntity(pnt);
+		//	pnt->close();
+		//}
+		for (auto iter = dim_infos.begin(); iter != dim_infos.end(); iter++)
+		{
+			auto tmp_iter = iter;
+			tmp_iter++;
+
+			if (tmp_iter == dim_infos.end())
+				break;
+			double rotated_val = AcGeVector3d::kXAxis.angleTo(vec);
+			//if (rotated_val > KPI * 0.5 - 0.001)
+			//	rotated_val -= KPI * 0.5;
+			AcDbRotatedDimension* rotated_dim = new AcDbRotatedDimension(
+				rotated_val,
+				iter->origin_point,
+				tmp_iter->origin_point,
+				iter->dim_point,
+				nullptr);
+
+			model_space.object->appendAcDbEntity(rotated_dim);
+			rotated_dim->close();
+		}
 	}
 	catch (...)
 	{
 
 	}
+}
+
+struct MergeDimInfo
+{
+	double dim_length;
+	AcGePoint3d point_1;
+	AcGePoint3d point_2;
+	AcGePoint3d dim_position;
+
+	MergeDimInfo(double dl, const AcGePoint3d& p1, const AcGePoint3d& p2, const AcGePoint3d& dp) :
+		dim_length(dl),
+		point_1(p1),
+		point_2(p2),
+		dim_position(dp)
+	{}
+};
+
+void FastDim::DoMergeDim()
+{
+	auto obj_ids = ARXFuncs::GetObjIdsInSelected();
+	std::list<MergeDimInfo> len_dims = std::list<MergeDimInfo>();
+	for (int i = 0; i < obj_ids.length();)
+	{
+		ObjectWrap<AcDbRotatedDimension> rot_dim(DBObject::OpenObjectById<AcDbRotatedDimension>(obj_ids[i]));
+		if (nullptr == rot_dim.object)
+		{
+			obj_ids.removeAt(i);
+			continue;
+		}
+
+		double value = 0.0;
+		rot_dim.object->measurement(value);
+		len_dims.push_back(MergeDimInfo(value,
+			rot_dim.object->xLine1Point(),
+			rot_dim.object->xLine2Point(),
+			rot_dim.object->dimLinePoint()));
+
+		i++;
+	}
+
+	if (len_dims.size() < 2)
+		return;
+
+	for (auto iter = len_dims.begin(); iter != len_dims.end(); iter++)
+	{
+		if (std::abs(iter->dim_length - len_dims.front().dim_length) > 0.01)
+			return;
+	}
+
+
 }
 
 static AcGeVector3d DetectAlongVector(const AcDbObjectId& pl_id)
@@ -98,14 +208,16 @@ static AcGeVector3d DetectAlongVector(const AcDbObjectId& pl_id)
 		}
 	}
 
+	if (ret.crossProduct(AcGeVector3d::kXAxis).normal().isEqualTo(AcGeVector3d::kZAxis))
+		ret = -ret;
+
 	return ret;
 }
 
 AcGePoint3d PointOnLine(const AcGePoint3d & bp, const AcGeVector3d & vec, const AcGePoint3d & pnt)
 {
-	double k = vec.y * (pnt.x - bp.x) - vec.x * (pnt.y - bp.y);
-	double ret_x = bp.x - k * vec.x;
-	double ret_y = bp.y - k * vec.y;
+	double ret_x = bp.x * vec.y * vec.y - bp.y * vec.x * vec.y + pnt.x * vec.x * vec.x + pnt.y * vec.x * vec.y;
+	double ret_y = pnt.x * vec.x * vec.y + pnt.y * vec.y * vec.y - bp.x * vec.x * vec.y + bp.y * vec.x * vec.x;
 
 	return AcGePoint3d(ret_x, ret_y, 0.0);
 }

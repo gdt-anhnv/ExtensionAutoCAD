@@ -7,5 +7,6 @@ class FastDim
 {
 public:
 	static void DoFastDim();
+	static void DoMergeDim();
 };
 #endif

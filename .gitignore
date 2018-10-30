@@ -333,3 +333,6 @@ Build_vs2010/*
 *.err
 ./build32bit
 build32bit/*
+*/Build
+*.lib
+*.arx

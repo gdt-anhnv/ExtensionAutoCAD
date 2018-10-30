@@ -5,10 +5,13 @@
 #define GROUPNAME					L"PTFasterCommand"
 #define CONTOURLINE					L"ContourLine"
 #define FASTDIM						L"FastDim"
+#define MERGE_DIM					L"MergeDim"
 
 std::wstring groupname = GROUPNAME;
 std::wstring command_name[] = {
-	CONTOURLINE
+	CONTOURLINE,
+	FASTDIM,
+	MERGE_DIM
 };
 
 static AcRxFunctionPtr GetFuncs(std::wstring cmd)
@@ -17,6 +20,8 @@ static AcRxFunctionPtr GetFuncs(std::wstring cmd)
 		return ContourLine::DoContourLine;
 	if (0 == cmd.compare(FASTDIM))
 		return FastDim::DoFastDim;
+	if (0 == cmd.compare(MERGE_DIM))
+		return FastDim::DoMergeDim;
 }
 
 static void InitCommands()

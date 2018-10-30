@@ -61,3 +61,5 @@
 #include "acedads.h" // used acedGetString
 #include "core_rxmfcapi.h"
 #include "gepent3d.h"
+
+static double KPI = 3.14159265359;
