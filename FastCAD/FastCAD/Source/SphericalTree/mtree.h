@@ -89,7 +89,7 @@ inline void MTree<T>::Insert(Node<T>* n)
 					parent = root;
 				}
 
-				for (std::list <Node<T>*>::iterator iter = split_nodes.begin(); iter != split_nodes.end(); iter++)
+				for (typename std::list <Node<T>*>::iterator iter = split_nodes.begin(); iter != split_nodes.end(); iter++)
 				{
 					parent->AddNode(*iter);
 					parent->CalibrateBoundary();

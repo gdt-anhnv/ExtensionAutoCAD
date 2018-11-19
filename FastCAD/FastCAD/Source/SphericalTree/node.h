@@ -103,7 +103,7 @@ inline Node<T> * Node<T>::InsertInto(Node<T>* n)
 	if (!IsEmpty())
 	{
 		Node<T>* ret = child_nodes.front();
-		for (std::list<Node<T>*>::iterator iter = child_nodes.begin(); iter != child_nodes.end(); iter++)
+		for (typename std::list<Node<T>*>::iterator iter = child_nodes.begin(); iter != child_nodes.end(); iter++)
 		{
 			if (ret->center.Distance(n->center) > (*iter)->center.Distance(n->center))
 				ret = *iter;
@@ -129,8 +129,8 @@ inline std::list<Node<T>*> Node<T>::Split()
 
 	for (int i = 1; i < num_node; i++)
 	{
-		std::list<Node<T>*>::iterator nn = child_nodes.begin();
-		for (std::list<Node<T>*>::iterator iter = child_nodes.begin(); iter != child_nodes.end(); iter++)
+		typename std::list<Node<T>*>::iterator nn = child_nodes.begin();
+		for (typename std::list<Node<T>*>::iterator iter = child_nodes.begin(); iter != child_nodes.end(); iter++)
 		{
 			if (n1->center.Distance((*nn)->center) < n1->center.Distance((*iter)->center))
 			{
@@ -144,7 +144,7 @@ inline std::list<Node<T>*> Node<T>::Split()
 	}
 
 	Node<T>* n2 = new Node<T>(child_nodes.front()->center, child_nodes.front()->radius);
-	for (std::list<Node<T>*>::iterator iter = child_nodes.begin(); iter != child_nodes.end(); iter++)
+	for (typename std::list<Node<T>*>::iterator iter = child_nodes.begin(); iter != child_nodes.end(); iter++)
 	{
 		n2->AddNode(*iter);
 		n2->Expand((*iter)->center, (*iter)->radius);

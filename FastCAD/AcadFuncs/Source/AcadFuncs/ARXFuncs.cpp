@@ -1,9 +1,8 @@
+#include "../acad_header.h"
 #include "ARXFuncs.h"
-#include "../wrap_header.h"
-#include "DBObject.h"
-#include "Geometry.h"
-#include "AcadFuncs.h"
-#include "acedCmdNF.h"
+#include "../AcadFuncs/DBObject.h"
+#include "../AcadFuncs/Geometry.h"
+#include "../AcadFuncs/AcadFuncs.h"
 
 
 AcDbObjectIdArray ARXFuncs::GetEntsInsidePolyline(const AcDbObjectId & id)
@@ -23,6 +22,68 @@ AcDbObjectIdArray ARXFuncs::GetEntsInsidePolyline(const AcDbObjectId & id)
 			else
 			{
 				return ids;
+			}
+		}
+	}
+
+	ZoomIntoZone(id);
+	if (pts.isEmpty())
+	{
+		return ids;
+	}
+
+	ads_point pt;
+	resbuf *pnts = acutBuildList(RT3DPOINT, asDblArray(pts[0]));
+	for (int i = 1; i < pts.length(); i++)
+	{
+		pnts = Functions::AppendToResbuf(pnts,
+			acutBuildList(
+				RT3DPOINT, asDblArray(pts[i]), // Next point
+				RTNONE)
+		);
+	}
+	AdsNameWrap cp_wrap;
+	int ret = acedSSGet(L"CP", pnts, NULL, NULL, cp_wrap.ads);
+	acutRelRb(pnts);
+	Adesk::Int32 num_ent = 0;
+	ret = acedSSLength(cp_wrap.ads, &num_ent);
+	if (RTNORM != ret)
+		return ids;
+
+	for (int i = 0; i < num_ent; i++)
+	{
+		ads_name tmp = { 0, 0 };
+		if (RTNORM != acedSSName(cp_wrap.ads, i, tmp))
+			continue;
+		AcDbObjectId tmp_id = AcDbObjectId::kNull;
+		if (Acad::eOk == acdbGetObjectId(tmp_id, tmp))
+		{
+			ids.append(tmp_id);
+		}
+	}
+
+	return ids;
+}
+
+AcDbObjectIdArray ARXFuncs::GetEntsInsidePolyline2(const AcDbObjectId & id)
+{
+	AcDbObjectIdArray ids = AcDbObjectIdArray();
+	AcGePoint3dArray pts = AcGePoint3dArray();
+
+	{
+		ObjectWrap<AcDbObject> obj_wrap(DBObject::OpenObjectById<AcDbObject>(id));
+		if (obj_wrap.object->isKindOf(AcDbPolyline::desc()))
+		{
+			AcDbPolyline* pl = AcDbPolyline::cast(obj_wrap.object);
+			if (pl->isClosed())
+			{
+				pts = GeoFuncs::GetListVertexOfPolyline(pl);
+			}
+			else
+			{
+				pts = GeoFuncs::GetListVertexOfPolyline(pl);
+				if (!pts[0].isEqualTo(pts[pts.length() - 1]))
+					pts.append(pts[0]);
 			}
 		}
 	}
@@ -126,7 +187,7 @@ AcDbObjectIdArray ARXFuncs::GetObjIdsByPicking(wchar_t * prompt)
 	AcDbObjectIdArray ids = AcDbObjectIdArray();
 	AdsNameWrap anw;
 
-	wchar_t* pts[] = { prompt, L"" };
+	wchar_t* pts[] = { prompt, (wchar_t*)L"" };
 
 	if (RTNORM != acedSSGet(L"_+.:S:$", pts, NULL, NULL, anw.ads))
 		return ids;
@@ -158,7 +219,7 @@ AcDbObjectIdArray ARXFuncs::GetObjIdsInSelected(wchar_t* prompt)
 {
 	AcDbObjectIdArray ids = AcDbObjectIdArray();
 	AdsNameWrap anw;
-	wchar_t* pts[] = { prompt, L"" };
+	wchar_t* pts[] = { prompt, (wchar_t*)L"" };
 	int ret = acedSSGet(L":$", pts, NULL, NULL, anw.ads);
 	AcDbHandle hndl = AcDbHandle(anw.ads[0], anw.ads[1]);
 	if (!hndl.isNull())

@@ -70,7 +70,7 @@ void LayerFuncs::ChangeLayer(AcDbDatabase * db, wchar_t * base, wchar_t * des, b
 		if (iter->getRecord(rcd, AcDb::kForRead) == Acad::eOk)
 		{
 			ObjectWrap<AcDbLayerTableRecord> layer_wrap(rcd);
-			wchar_t* layer_name = L"";
+			wchar_t* layer_name = (wchar_t*)L"";
 			layer_wrap.object->getName(layer_name);
 			std::size_t length = std::wcslen(base);
 			wchar_t cmp_c = base[length - 1];
@@ -176,7 +176,7 @@ void LayerFuncs::DeleteLayerByRegex(AcDbDatabase * db, wchar_t * regex)
 		if (Acad::eOk == iter->getRecord(rcd, AcDb::kForRead))
 		{
 			ObjectWrap<AcDbLayerTableRecord> layer_wrap(rcd);
-			wchar_t* layer_name = L"";
+			wchar_t* layer_name = (wchar_t*)L"";
 			layer_wrap.object->getName(layer_name);
 
 			if (Functions::IsMatchRegex(regex, layer_name))

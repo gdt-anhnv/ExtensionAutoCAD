@@ -4,12 +4,12 @@
 
 #define GROUPNAME					L"PTFasterCommand"
 #define CONTOURLINE					L"ContourLine"
-#define FASTDIM						L"FastDim"
-#define MERGE_DIM					L"MergeDim"
+#define FASTDIM						L"fd"
+#define MERGE_DIM					L"md"
 
 std::wstring groupname = GROUPNAME;
 std::wstring command_name[] = {
-	CONTOURLINE,
+	//CONTOURLINE,
 	FASTDIM,
 	MERGE_DIM
 };

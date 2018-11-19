@@ -112,7 +112,7 @@ public:
 	static AcDbObjectIdArray GetObjIdsInSelected();
 	static AcDbObjectIdArray GetObjIdsInSelected(wchar_t* prompt);
 	static AcDbObjectIdArray GetObjIdsInWindow(const AcGePoint3d& pnt1, const AcGePoint3d& pnt2);
-	static void AcadFuncs::ConvertToAdsPoint(AcGePoint3d pnt, ads_point);
+	static void ConvertToAdsPoint(AcGePoint3d pnt, ads_point);
 	static AcGePoint3d ConvertAdsToPoint(const ads_point);
 	static AcDbObjectIdArray UserGetEnts();
 	static AcGePoint3d UserGetPoint(std::wstring prompt);

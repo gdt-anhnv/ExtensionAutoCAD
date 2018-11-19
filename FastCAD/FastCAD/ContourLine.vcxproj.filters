@@ -70,7 +70,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ContourLine.def">
+    <None Include="FastCAD.def">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>

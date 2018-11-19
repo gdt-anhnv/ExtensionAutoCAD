@@ -25,6 +25,7 @@ struct DimInfo
 
 static AcGeVector3d DetectAlongVector(const AcDbObjectId& pl_id);
 static AcGePoint3d PointOnLine(const AcGePoint3d& bp, const AcGeVector3d& vec, const AcGePoint3d& pnt);
+
 void FastDim::DoFastDim()
 {
 	try
@@ -45,7 +46,7 @@ void FastDim::DoFastDim()
 		AcGePoint3d base_pnt = UserFuncs::UserGetPoint(L"Chọn 1 điểm:");
 
 		//Detect all the circles
-		auto ent_ids = ARXFuncs::GetEntsInsidePolyline(obj_ids[0]);
+		auto ent_ids = ARXFuncs::GetEntsInsidePolyline2(obj_ids[0]);
 		if (0 == ent_ids.length())
 			return;
 
@@ -110,6 +111,8 @@ void FastDim::DoFastDim()
 		//	model_space.object->appendAcDbEntity(pnt);
 		//	pnt->close();
 		//}
+		AcGeTol tol = AcGeTol();
+		tol.setEqualPoint(0.5);
 		for (auto iter = dim_infos.begin(); iter != dim_infos.end(); iter++)
 		{
 			auto tmp_iter = iter;
@@ -117,6 +120,9 @@ void FastDim::DoFastDim()
 
 			if (tmp_iter == dim_infos.end())
 				break;
+
+			if (tmp_iter->dim_point.isEqualTo(iter->dim_point, tol))
+				continue;
 			double rotated_val = AcGeVector3d::kXAxis.angleTo(vec);
 			//if (rotated_val > KPI * 0.5 - 0.001)
 			//	rotated_val -= KPI * 0.5;
@@ -322,6 +328,6 @@ std::wstring GetDimContent(const std::list<MergeDimInfo>& dims, MergeDimType typ
 
 	content.append(L"x");
 	content.append(std::to_wstring(dims.size()));
-	content.append(L"=<>");
+	//content.append(L"=<>");
 	return content;
 }

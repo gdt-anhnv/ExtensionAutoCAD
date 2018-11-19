@@ -2,6 +2,7 @@
 #define _DB_OBJECT_H_
 
 #include "../acad_header.h"
+#include "../Wrap/acad_obj_wrap.h"
 
 class DBObject
 {

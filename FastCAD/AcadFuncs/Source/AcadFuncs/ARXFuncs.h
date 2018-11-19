@@ -9,6 +9,7 @@ public:
 	//only use for arx
 #ifdef _USING_ARX_
 	static AcDbObjectIdArray GetEntsInsidePolyline(const AcDbObjectId & id);
+	static AcDbObjectIdArray GetEntsInsidePolyline2(const AcDbObjectId & id);
 	static void ZoomIntoZone(const AcDbObjectId & id);
 	static void ZoomIntoZoneExtent(const AcDbObjectId & id, int exten_val);
 	static AcDbObjectIdArray GeLastCreatedObjId();
