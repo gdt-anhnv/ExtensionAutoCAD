@@ -1,17 +1,25 @@
 #include "../stdafx.h"
 #include "contour_line.h"
 #include "fast_dim.h"
+#include "instance_balloon.h"
+#include "blk_ref_func.h"
 
 #define GROUPNAME					L"PTFasterCommand"
 #define CONTOURLINE					L"ContourLine"
 #define FASTDIM						L"fd"
 #define MERGE_DIM					L"md"
 
+#define INSTANCE_BALLOON			L"InstanceBalloon"
+#define COPY_NAME_BLK				L"GetBlkName"
+#define COPY_BLK					L"CopyBlk"
+#define PASTE_BLK					L"PasteBlk"
+
 std::wstring groupname = GROUPNAME;
 std::wstring command_name[] = {
-	//CONTOURLINE,
-	FASTDIM,
-	MERGE_DIM
+	INSTANCE_BALLOON,
+	COPY_NAME_BLK,
+	COPY_BLK,
+	PASTE_BLK
 };
 
 static AcRxFunctionPtr GetFuncs(std::wstring cmd)
@@ -22,6 +30,14 @@ static AcRxFunctionPtr GetFuncs(std::wstring cmd)
 		return FastDim::DoFastDim;
 	if (0 == cmd.compare(MERGE_DIM))
 		return FastDim::DoMergeDim;
+	if (0 == cmd.compare(INSTANCE_BALLOON))
+		return InstanceBalloon::DrawBalloon;
+	if (0 == cmd.compare(COPY_NAME_BLK))
+		return BlkRefFunc::CopyBlkName;
+	if (0 == cmd.compare(COPY_BLK))
+		return BlkRefFunc::CopyBlk;
+	if (0 == cmd.compare(PASTE_BLK))
+		return BlkRefFunc::PasteBlk;
 }
 
 static void InitCommands()

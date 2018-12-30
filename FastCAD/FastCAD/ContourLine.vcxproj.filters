@@ -22,6 +22,12 @@
     <Filter Include="Header Files\FastDim">
       <UniqueIdentifier>{33e6b605-9b70-4ca4-bf4b-17ea6575163b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\InstanceBalloon">
+      <UniqueIdentifier>{f7c80086-6a38-4816-8e77-d7592eacc1d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\BlkFunc">
+      <UniqueIdentifier>{ebd99f34-45a6-4ff2-a67e-b509583339ee}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\SphericalTree\node.h">
@@ -48,6 +54,15 @@
     <ClInclude Include="Source\fast_dim.h">
       <Filter>Header Files\FastDim</Filter>
     </ClInclude>
+    <ClInclude Include="Source\instance_balloon.h">
+      <Filter>Header Files\InstanceBalloon</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\acad_mechanical_inc.h">
+      <Filter>Header Files\InstanceBalloon</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\blk_ref_func.h">
+      <Filter>Header Files\BlkFunc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\SphericalTree\point2d.cpp">
@@ -67,6 +82,12 @@
     </ClCompile>
     <ClCompile Include="Source\fast_dim.cpp">
       <Filter>Header Files\FastDim</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\instance_balloon.cpp">
+      <Filter>Header Files\InstanceBalloon</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\blk_ref_func.cpp">
+      <Filter>Header Files\BlkFunc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
