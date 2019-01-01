@@ -232,6 +232,7 @@
     <ClInclude Include="Source\acad_mechanical_inc.h" />
     <ClInclude Include="Source\blk_ref_func.h" />
     <ClInclude Include="Source\contour_line.h" />
+    <ClInclude Include="Source\editor_reactor.h" />
     <ClInclude Include="Source\fast_dim.h" />
     <ClInclude Include="Source\instance_balloon.h" />
     <ClInclude Include="Source\SphericalTree\node.h" />
@@ -245,6 +246,7 @@
     <ClCompile Include="Source\acrx_entry_point.cpp" />
     <ClCompile Include="Source\blk_ref_func.cpp" />
     <ClCompile Include="Source\contour_line.cpp" />
+    <ClCompile Include="Source\editor_reactor.cpp" />
     <ClCompile Include="Source\fast_dim.cpp" />
     <ClCompile Include="Source\instance_balloon.cpp" />
     <ClCompile Include="Source\SphericalTree\point2d.cpp" />

@@ -63,6 +63,9 @@
     <ClInclude Include="Source\blk_ref_func.h">
       <Filter>Header Files\BlkFunc</Filter>
     </ClInclude>
+    <ClInclude Include="Source\editor_reactor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\SphericalTree\point2d.cpp">
@@ -88,6 +91,9 @@
     </ClCompile>
     <ClCompile Include="Source\blk_ref_func.cpp">
       <Filter>Header Files\BlkFunc</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\editor_reactor.cpp">
+      <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

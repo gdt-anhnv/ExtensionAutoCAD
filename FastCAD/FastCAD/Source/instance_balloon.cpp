@@ -53,12 +53,13 @@ struct BalloonData
 };
 
 static void Draw(std::list<BalloonData>& test_ids);
+std::list<BalloonData> test_ids = std::list<BalloonData>();
 #define STEP_EACH_PART			200.0
 void InstanceBalloon::DrawBalloon()
 {
 	try
 	{
-		std::list<BalloonData> test_ids = std::list<BalloonData>();
+		test_ids.clear();
 		int num_balloon = 0;
 		num_balloon = UserFuncs::GetInt(L"Number balloon:");
 
@@ -124,7 +125,16 @@ void InstanceBalloon::DrawBalloon()
 			flag_pnt.object->erase();
 		}
 
+		//acedCommandS(RTSTR, _T("_TEST"), RTNONE);
+
 		Draw(test_ids);
+
+		ObjectWrap<AcDbObject> last_part(DBObject::OpenObjectById<AcDbObject>(test_ids.back().part_id));
+		if (nullptr != last_part.object)
+		{
+			last_part.object->upgradeOpen();
+			last_part.object->erase();
+		}
 	}
 	catch (...)
 	{
@@ -133,7 +143,7 @@ void InstanceBalloon::DrawBalloon()
 
 void InstanceBalloon::Test()
 {
-
+	Draw(test_ids);
 }
 
 static void Draw(std::list<BalloonData>& test_ids)

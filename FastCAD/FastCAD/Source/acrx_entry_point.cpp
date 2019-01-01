@@ -3,6 +3,7 @@
 #include "fast_dim.h"
 #include "instance_balloon.h"
 #include "blk_ref_func.h"
+#include "editor_reactor.h"
 
 #define GROUPNAME					L"PTFasterCommand"
 #define CONTOURLINE					L"ContourLine"
@@ -62,6 +63,7 @@ static void DestroyCommands()
 	acedRegCmds->removeGroup(groupname.c_str());
 }
 
+//FCEditorReactor* reactor = nullptr;
 extern "C" AcRx::AppRetCode acrxEntryPoint(AcRx::AppMsgCode msg, void* appId)
 {
 	switch (msg)
@@ -71,10 +73,14 @@ extern "C" AcRx::AppRetCode acrxEntryPoint(AcRx::AppMsgCode msg, void* appId)
 		acrxRegisterAppMDIAware(appId);
 		acutPrintf(_T("\n PTFaster (by Hicas Solution) loaded! \n"));
 		InitCommands();
+		//FCEditorReactor::rxInit();
+		//reactor = new FCEditorReactor();
 		break;
 	case AcRx::kUnloadAppMsg:
 		acutPrintf(_T("\n PTFaster (by Hicas Solution) unloaded! \n"));
 		DestroyCommands();
+		//delete reactor;
+		//deleteAcRxClass(FCEditorReactor::desc());
 		break;
 	case AcRx::kLoadDwgMsg:
 		break;
