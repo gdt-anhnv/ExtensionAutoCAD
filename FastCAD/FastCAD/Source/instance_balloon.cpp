@@ -115,7 +115,7 @@ void InstanceBalloon::DrawBalloon()
 				AcDbObjectIdArray ids = GetNextEnts(flag_id);
 				if (0 == ids.length())
 					throw int(1);
-				source_part_id = ids[0];
+				//source_part_id = ids[0];
 				test_ids.append(ids[0]);
 
 				ObjectWrap<AcDbPoint> flag_pnt(DBObject::OpenObjectById<AcDbPoint>(flag_id));
@@ -124,6 +124,8 @@ void InstanceBalloon::DrawBalloon()
 			}
 
 		}
+
+		Test();
 	}
 	catch (...)
 	{
@@ -132,10 +134,10 @@ void InstanceBalloon::DrawBalloon()
 
 void InstanceBalloon::Test()
 {
-	AcGePoint3d pos = AcGePoint3d::kOrigin;
 	for (int i = 0; i < test_ids.length(); i++)
 	{
-		pos += AcGeVector3d::kXAxis * STEP_EACH_PART;
+		AcGePoint3d pos = AcGePoint3d::kOrigin;
+		pos += i * AcGeVector3d::kXAxis * STEP_EACH_PART;
 		InstanceBalloonEnt(test_ids[i], pos);
 	}
 }
