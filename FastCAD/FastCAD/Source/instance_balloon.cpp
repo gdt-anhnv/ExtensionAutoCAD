@@ -41,11 +41,14 @@ static AcDbObjectIdArray GetNextEnts(const AcDbObjectId & id)
 	return ids;
 }
 
+static void InstanceBalloonEnt(const AcDbObjectId& part_id, const AcGePoint3d& pos);
+AcDbObjectIdArray test_ids = AcDbObjectIdArray();
 #define STEP_EACH_PART			80.0
 void InstanceBalloon::DrawBalloon()
 {
 	try
 	{
+		test_ids.removeAll();
 		int num_balloon = 0;
 		num_balloon = UserFuncs::GetInt(L"Number balloon:");
 
@@ -66,6 +69,7 @@ void InstanceBalloon::DrawBalloon()
 
 			AcDbObjectIdArray ids = GetNextEnts(flag_id);
 			source_part_id = ids[0];
+			test_ids.append(ids[0]);
 
 			ObjectWrap<AcDbPoint> flag_pnt(DBObject::OpenObjectById<AcDbPoint>(flag_id));
 			flag_pnt.object->upgradeOpen();
@@ -81,20 +85,6 @@ void InstanceBalloon::DrawBalloon()
 
 		for (int i = 0; i < num_balloon; i++)
 		{
-			{
-				ads_name sel;
-				acdbGetAdsName(sel, source_part_id);
-
-				ads_point pt2 = { i * STEP_EACH_PART, 0.0 };
-				ads_point pt3 = { i * STEP_EACH_PART, 200.0 };
-				int ret = acedCommandS(RTSTR, _T("_amballoon"),
-					RTLB, RTENAME, sel, RTPOINT, pt2, RTLE,
-					RTPOINT, pt3,
-					RTSTR, _T(""),
-					RTSTR, _T(""),
-					RTNONE);
-			}
-
 			{
 				AcDbObjectId flag_id = AcDbObjectId::kNull;
 				{
@@ -113,11 +103,6 @@ void InstanceBalloon::DrawBalloon()
 				acdbGetAdsName(tmp, source_part_id);
 				acedSSAdd(tmp, ads, ads);
 
-				ads_point base_pnt = { i * STEP_EACH_PART, 0.0 };
-				std::wstring base_pnt_str = std::wstring();
-				base_pnt_str.append(std::to_wstring(i * STEP_EACH_PART));
-				base_pnt_str.append(L",");
-				base_pnt_str.append(L"0.0");
 				ads_point paste_pnt = { (i + 1) * STEP_EACH_PART, 0.0 };
 				std::wstring paste_pnt_str = std::wstring();
 				paste_pnt_str.append(std::to_wstring((i + 1) * STEP_EACH_PART));
@@ -126,11 +111,12 @@ void InstanceBalloon::DrawBalloon()
 					RTSTR, _T("0.0,0.0"),
 					RTPICKS, ads, RTSTR, _T(""),
 					RTSTR, _T(""), RTNONE);
-				acedCommandS(RTSTR, _T("_pasteblock"), RTSTR, paste_pnt_str.c_str(), RTSTR, _T(""), RTSTR, _T(""), RTNONE);
+				acedCommandS(RTSTR, _T("_pasteclip"), RTSTR, paste_pnt_str.c_str(), RTSTR, _T(""), RTSTR, _T(""), RTNONE);
 				AcDbObjectIdArray ids = GetNextEnts(flag_id);
 				if (0 == ids.length())
 					throw int(1);
 				source_part_id = ids[0];
+				test_ids.append(ids[0]);
 
 				ObjectWrap<AcDbPoint> flag_pnt(DBObject::OpenObjectById<AcDbPoint>(flag_id));
 				flag_pnt.object->upgradeOpen();
@@ -142,4 +128,29 @@ void InstanceBalloon::DrawBalloon()
 	catch (...)
 	{
 	}
+}
+
+void InstanceBalloon::Test()
+{
+	AcGePoint3d pos = AcGePoint3d::kOrigin;
+	for (int i = 0; i < test_ids.length(); i++)
+	{
+		pos += AcGeVector3d::kXAxis * STEP_EACH_PART;
+		InstanceBalloonEnt(test_ids[i], pos);
+	}
+}
+
+void InstanceBalloonEnt(const AcDbObjectId & part_id, const AcGePoint3d & pos)
+{
+	ads_name sel;
+	acdbGetAdsName(sel, part_id);
+
+	ads_point pt2 = { pos.x, 0.0 };
+	ads_point pt3 = { pos.x, 200.0 };
+	int ret = acedCommandS(RTSTR, _T("_amballoon"),
+		RTLB, RTENAME, sel, RTPOINT, pt2, RTLE,
+		RTPOINT, pt3,
+		RTSTR, _T(""),
+		RTSTR, _T(""),
+		RTNONE);
 }

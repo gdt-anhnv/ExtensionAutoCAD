@@ -8,6 +8,7 @@ public:
 	~InstanceBalloon();
 
 	static void DrawBalloon();
+	static void Test();
 };
 
 #endif

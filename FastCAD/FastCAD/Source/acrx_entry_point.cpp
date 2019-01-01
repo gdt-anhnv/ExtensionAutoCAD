@@ -13,13 +13,15 @@
 #define COPY_NAME_BLK				L"GetBlkName"
 #define COPY_BLK					L"CopyBlk"
 #define PASTE_BLK					L"PasteBlk"
+#define TEST						L"Test"
 
 std::wstring groupname = GROUPNAME;
 std::wstring command_name[] = {
 	INSTANCE_BALLOON,
 	COPY_NAME_BLK,
 	COPY_BLK,
-	PASTE_BLK
+	PASTE_BLK,
+	TEST
 };
 
 static AcRxFunctionPtr GetFuncs(std::wstring cmd)
@@ -38,6 +40,8 @@ static AcRxFunctionPtr GetFuncs(std::wstring cmd)
 		return BlkRefFunc::CopyBlk;
 	if (0 == cmd.compare(PASTE_BLK))
 		return BlkRefFunc::PasteBlk;
+	if (0 == cmd.compare(TEST))
+		return InstanceBalloon::Test;
 }
 
 static void InitCommands()
