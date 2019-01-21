@@ -16,6 +16,8 @@ struct VertexInfo
 	VertexInfo(const STPoint2d& pos, double val);
 
 	VertexInfo(const VertexInfo& vi);
+
+	VertexInfo();
 };
 
 class Triangle : public Node<Triangle>

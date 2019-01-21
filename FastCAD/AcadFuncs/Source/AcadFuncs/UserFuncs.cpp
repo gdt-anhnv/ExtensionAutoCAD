@@ -75,7 +75,7 @@ int UserFuncs::GetInt(std::wstring promp)
 		break;
 	case RTNONE:
 		// defaul table
-		return int();
+		throw int(1);
 		break;
 	case RTNORM:
 		return value;

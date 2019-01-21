@@ -9,8 +9,11 @@ static double CalculateArea(const STPoint2d& p1, const STPoint2d& p2, const STPo
 Triangle::Triangle(const VertexInfo& p1, const VertexInfo& p2, const VertexInfo& p3) :
 	Node<Triangle>(CalculateCircumcircleCenter(p1.position, p2.position, p3.position),
 		CalculateCircumcircleRadius(p1.position, p2.position, p3.position)),
-	vertice{ p1, p2, p3 }
+		vertice()
 {
+	vertice[0] = p1;
+	vertice[1] = p2;
+	vertice[2] = p3;
 }
 
 Triangle::~Triangle()
@@ -169,3 +172,8 @@ VertexInfo::VertexInfo(const VertexInfo & vi) :
 	value(vi.value)
 {
 }
+
+VertexInfo::VertexInfo() :
+	position(STPoint2d(0.0, 0.0)),
+	value(0.0)
+{}

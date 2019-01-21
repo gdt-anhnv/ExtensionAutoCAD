@@ -54,7 +54,7 @@ struct BalloonData
 
 static void Draw(std::list<BalloonData>& test_ids);
 std::list<BalloonData> test_ids = std::list<BalloonData>();
-#define STEP_EACH_PART			200.0
+#define STEP_EACH_PART			80.0
 void InstanceBalloon::DrawBalloon()
 {
 	try

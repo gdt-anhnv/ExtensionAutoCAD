@@ -7,6 +7,7 @@ public:
 	static void CopyBlkName();
 	static void CopyBlk();
 	static void PasteBlk();
+	static void ChangeBlkBase();
 };
 
 #endif

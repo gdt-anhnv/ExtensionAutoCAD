@@ -322,12 +322,12 @@ MergeDimType MergeType(const std::list<MergeDimInfo>& dims)
 std::wstring GetDimContent(const std::list<MergeDimInfo>& dims, MergeDimType type)
 {
 	std::wstring content = L"";
-	content.append(std::to_wstring(std::round(dims.front().dim_length)));
-	size_t index = content.find(L".");
-	content.erase(index);
+	//content.append(std::to_wstring(std::round(dims.front().dim_length)));
+	//size_t index = content.find(L".");
+	//content.erase(index);
 
-	content.append(L"x");
-	content.append(std::to_wstring(dims.size()));
+	//content.append(L"x");
+	//content.append(std::to_wstring(dims.size()));
 	//content.append(L"=<>");
 	return content;
 }
