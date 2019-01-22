@@ -8,7 +8,7 @@ using AcadDB = Autodesk.AutoCAD.DatabaseServices;
 
 namespace SteelBeam
 {
-    class Beam
+    public class Beam
     {
         public const int cover = 25;
         private int width_beam;

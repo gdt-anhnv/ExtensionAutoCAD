@@ -55,6 +55,11 @@ namespace SteelBeam
             missing_dir = md;
         }
 
+        public string GetContent()
+        {
+            return "%%c" + diameter.ToString() + "@" + spacing.ToString();
+        }
+
         private bool IsVertical()
         {
             return MissingDir.LEFT == missing_dir || MissingDir.RIGHT == missing_dir;

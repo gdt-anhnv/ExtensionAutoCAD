@@ -45,6 +45,11 @@ namespace SteelBeam
             spacing = 0;
         }
 
+        public string GetContent()
+        {
+            return "%%c" + diameter.ToString() + "@" + spacing.ToString();
+        }
+
         public List<AcadDB.Entity> DrawShapeA(AcadGeo.Point3d ins_pnt)
         {
             if (width < 2 * corner_rad || height < 2 * corner_rad)

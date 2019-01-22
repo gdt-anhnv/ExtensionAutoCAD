@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 using AcadDB = Autodesk.AutoCAD.DatabaseServices;
 namespace SteelBeam
 {
-    public class InfoSteel
+    public class InfoSteel2
     {
         private const double cir_radius = 62.5;
         private const double text_height = 62.5;
         private const double text_w_factor = 0.75;
+        private const double length_line = 15.0;
         private int number;
         public int Number
         {
@@ -34,47 +35,43 @@ namespace SteelBeam
         {
             set { steel_pos = value; }
         }
-        private double angle;
-        public double Angle
-        {
-            get { return angle; }
-            set { angle = value; }
-        }
 
-        public InfoSteel()
+        public InfoSteel2()
         {
             number = 0;
             content = "";
             position = AcadGeo.Point3d.Origin;
             steel_pos = new List<AcadGeo.Point3d>();
-            angle = 0.0;
+        }
+
+        public void AddSteelPos(AcadGeo.Point3d pnt)
+        {
+            steel_pos.Add(pnt);
         }
 
         public List<AcadDB.Entity> Draw()
         {
-            AcadGeo.Line3d xline = new AcadGeo.Line3d(position, AcadGeo.Vector3d.XAxis);
-
             List<AcadDB.Entity> ents = new List<AcadDB.Entity>();
 
-            AcadGeo.Point3d pnt = new AcadGeo.Point3d(position.X, position.Y, position.Z);
+            if (0 == steel_pos.Count)
+                return ents;
+
+            AcadGeo.Point3d tmp_line = steel_pos[0];
             foreach(var sp in steel_pos)
             {
-                AcadGeo.Line3d steel_line = new AcadGeo.Line3d(sp, new AcadGeo.Vector3d(Math.Sin(angle), Math.Cos(angle), 0.0));
-                AcadGeo.Point3d[] intersected_pnts = xline.IntersectWith(steel_line);
+                AcadDB.Line line = new AcadDB.Line();
+                line.StartPoint = sp + length_line * AcadGeo.Vector3d.XAxis + length_line * AcadGeo.Vector3d.YAxis;
+                line.EndPoint = sp - length_line * AcadGeo.Vector3d.XAxis - length_line * AcadGeo.Vector3d.YAxis;
+                ents.Add(line);
 
-                if (intersected_pnts.Length > 0)
-                {
-                    ents.Add(new AcadDB.Line(intersected_pnts[0], sp));
-                    if (intersected_pnts[0].DistanceTo(position) > pnt.DistanceTo(position))
-                        pnt = intersected_pnts[0];
-                }
+                if (position.DistanceTo(sp) > position.DistanceTo(tmp_line))
+                    tmp_line = sp;
             }
-
-            ents.Add(new AcadDB.Line(position, pnt));
+            ents.Add(new AcadDB.Line(position, tmp_line));
 
             ents.Add(new AcadDB.Circle(position - AcadGeo.Vector3d.XAxis * cir_radius, AcadGeo.Vector3d.ZAxis, cir_radius));
 
-            //draw value
+            //Draw number
             {
                 AcadDB.DBText text = new AcadDB.DBText();
                 text.TextString = number.ToString();
