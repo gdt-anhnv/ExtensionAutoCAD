@@ -15,6 +15,8 @@ namespace SteelBeam
         public int type_beam;
         public int dai_diameter;
         public int spacing;
+        public int dai_diameter2;
+        public int spacing2;
     }
 
     public class BeamGiuaData
@@ -26,6 +28,8 @@ namespace SteelBeam
         public int type_beam;
         public int dai_diameter;
         public int spacing;
+        public int dai_diameter2;
+        public int spacing2;
     }
 
     public class BeamData
