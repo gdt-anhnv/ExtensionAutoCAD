@@ -62,6 +62,7 @@
     <Compile Include="Model\SteelShapeA.cs" />
     <Compile Include="Model\SteelShapeB.cs" />
     <Compile Include="Model\SteelShapeC.cs" />
+    <Compile Include="StatisticsSteel.cs" />
     <Compile Include="SteelBeam.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

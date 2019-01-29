@@ -15,21 +15,28 @@ namespace SteelBeam
         public const double offset_steel_layer = 50.0;
         public const double angle_info_steel = 60.0 * 3.1415 / 360.0;
         public const double OFFSET_TEXT_POS = 750.0;
+        public const double SCALING_TK = 25.0;
 
         public const double OFFSET_BLK_TK = 225.0;
         public const string BLK_THEP_THANG = "TK_2";
         public const string BLK_THEP_COGS = "TK_9";
         public const string BLK_THEP_COG = "TK_6";
         public const string BLK_THEP_DAI = "TK_14";
-        public const string BLK_THKL = "TK_THKL";
-        public const string BLK_TK_TITLE = "TK_TITLE";
+        public const string BLK_THEP_DAI_MOC = "TK_4";
+        public const string BLK_THKL = "CTK_THKL";
+        public const string BLK_TK_TITLE = "THONGKE_TITLE";
 
         [CommandMethod("ReadBeam")]
         public void ReadInfoBeam()
         {
             try
             {
-                var data = ReadExcel.DoReadExcel(@"C:\Users\nguye\OneDrive\Desktop\Data.xls");
+                OpenFileDialog file_dialog = new OpenFileDialog();
+                file_dialog.Filter = "Excel File (*.xls, *.xlsx)|*.xls;*.xlsx";
+                if (DialogResult.OK != file_dialog.ShowDialog())
+                    return;
+
+                var data = ReadExcel.DoReadExcel(file_dialog.FileName);
                 AcadGeo.Point3d ins_pnt = AcadFuncsCSharp.UserInput.PickPoint("Chọn điểm");
 
                 foreach (var d in data)
@@ -46,7 +53,11 @@ namespace SteelBeam
             }
             catch(Autodesk.AutoCAD.Runtime.Exception ex)
             {
-
+                MessageBox.Show(ex.Message);
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -85,7 +96,7 @@ namespace SteelBeam
                 ents.AddRange(shape_b1.Draw());
 
                 InfoSteel info_s1 = new InfoSteel();
-                info_s1.Number = 1;
+                info_s1.Number = 5;
                 info_s1.Content = shape_b1.GetContent();
                 info_s1.SteelPos = shape_b1.QuerySteelPos();
                 info_s1.Angle = angle_info_steel;
@@ -110,7 +121,7 @@ namespace SteelBeam
                 ents.AddRange(shape_b2.Draw());
 
                 InfoSteel info_s2 = new InfoSteel();
-                info_s2.Number = 1;
+                info_s2.Number = 3;
                 info_s2.Content = shape_b2.GetContent();
                 info_s2.SteelPos = shape_b2.QuerySteelPos();
                 info_s2.Angle = -angle_info_steel;
@@ -137,7 +148,7 @@ namespace SteelBeam
                 ents.AddRange(shape_b3.Draw());
 
                 InfoSteel info_s3 = new InfoSteel();
-                info_s3.Number = 1;
+                info_s3.Number = 4;
                 info_s3.Content = shape_b3.GetContent();
                 info_s3.SteelPos = shape_b3.QuerySteelPos();
                 info_s3.Angle = angle_info_steel;
@@ -168,7 +179,7 @@ namespace SteelBeam
                 ents.AddRange(shape_a.DrawShapeA(ins_pnt));
 
                 InfoSteel2 info_s = new InfoSteel2();
-                info_s.Number = 1;
+                info_s.Number = 5;
                 info_s.Content = shape_a.GetContent();
                 info_s.Position = ins_pnt - AcadGeo.Vector3d.XAxis * OFFSET_TEXT_POS +
                     AcadGeo.Vector3d.YAxis * 60.0;
@@ -212,7 +223,7 @@ namespace SteelBeam
                 ents.AddRange(shape_b2.Draw());
 
                 InfoSteel info_s2 = new InfoSteel();
-                info_s2.Number = 1;
+                info_s2.Number = 3;
                 info_s2.Content = shape_b2.GetContent();
                 info_s2.SteelPos = shape_b2.QuerySteelPos();
                 info_s2.Angle = -angle_info_steel;
@@ -239,7 +250,7 @@ namespace SteelBeam
                 ents.AddRange(shape_b3.Draw());
 
                 InfoSteel info_s3 = new InfoSteel();
-                info_s3.Number = 1;
+                info_s3.Number = 2;
                 info_s3.Content = shape_b3.GetContent();
                 info_s3.SteelPos = shape_b3.QuerySteelPos();
                 info_s3.Angle = -angle_info_steel;
@@ -278,32 +289,49 @@ namespace SteelBeam
             }
 
             AcadDB.BlockReference blk_ref_title = new AcadDB.BlockReference(ins_pnt, blk_thep_title);
-            ents.Add(blk_ref_title);
+            blk_ref_title.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(blk_ref_title);
             ins_pnt -= AcadGeo.Vector3d.YAxis * 1100 - AcadGeo.Vector3d.XAxis * 375;
 
             AcadDB.BlockReference blk_ref1 = new AcadDB.BlockReference(ins_pnt, blk_thep_thang);
-            ents.Add(blk_ref1);
+            blk_ref1.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(blk_ref1);
+            AcadFuncsCSharp.BlkRefFuncs.CloneAttribute(blk_ref1.Id, blk_thep_thang);
+            StatisticsSteelType1.StatisticsModel123_Steel1(beam_data, blk_ref1);
             ins_pnt -= AcadGeo.Vector3d.YAxis * OFFSET_BLK_TK;
 
             AcadDB.BlockReference blk_ref2 = new AcadDB.BlockReference(ins_pnt, blk_thep_thang);
-            ents.Add(blk_ref2);
+            blk_ref2.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(blk_ref2);
+            AcadFuncsCSharp.BlkRefFuncs.CloneAttribute(blk_ref2.Id, blk_thep_thang);
+            StatisticsSteelType1.StatisticsModel123_Steel2(beam_data, blk_ref2);
             ins_pnt -= AcadGeo.Vector3d.YAxis * OFFSET_BLK_TK;
 
             AcadDB.BlockReference blk_ref3 = new AcadDB.BlockReference(ins_pnt, blk_thep_cogs);
-            ents.Add(blk_ref3);
+            blk_ref3.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(blk_ref3);
+            AcadFuncsCSharp.BlkRefFuncs.CloneAttribute(blk_ref3.Id, blk_thep_cogs);
+            StatisticsSteelType1.StatisticsModel123_Steel3(beam_data, blk_ref3);
             ins_pnt -= AcadGeo.Vector3d.YAxis * OFFSET_BLK_TK;
 
             AcadDB.BlockReference blk_ref4 = new AcadDB.BlockReference(ins_pnt, blk_thep_cog);
-            ents.Add(blk_ref4);
+            blk_ref4.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(blk_ref4);
+            AcadFuncsCSharp.BlkRefFuncs.CloneAttribute(blk_ref4.Id, blk_thep_cog);
+            StatisticsSteelType1.StatisticsModel123_Steel4(beam_data, blk_ref4);
             ins_pnt -= AcadGeo.Vector3d.YAxis * OFFSET_BLK_TK;
 
             AcadDB.BlockReference blk_ref5 = new AcadDB.BlockReference(ins_pnt, blk_thep_dai);
-            ents.Add(blk_ref5);
+            blk_ref5.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(blk_ref5);
+            AcadFuncsCSharp.BlkRefFuncs.CloneAttribute(blk_ref5.Id, blk_thep_dai);
+            StatisticsSteelType1.StatisticsModel123_Steel5(beam_data, blk_ref5);
             ins_pnt -= AcadGeo.Vector3d.YAxis * OFFSET_BLK_TK;
 
             AcadDB.BlockReference ins_tkkl = new AcadDB.BlockReference(ins_pnt, blk_tkkl);
-            ents.Add(ins_tkkl);
-            ins_pnt -= AcadGeo.Vector3d.YAxis * OFFSET_BLK_TK;
+            ins_tkkl.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(ins_tkkl);
+            //ins_pnt -= AcadGeo.Vector3d.YAxis * OFFSET_BLK_TK;
 
             return ents;
         }
@@ -320,8 +348,8 @@ namespace SteelBeam
             ins_pnt += AcadGeo.Vector3d.XAxis * 2000.0;
             ents.AddRange(Beam1b(ins_pnt, beam, beam_data.giua_data));
 
-            ins_pnt += AcadGeo.Vector3d.XAxis * 2000.0 + AcadGeo.Vector3d.YAxis * 500.0;
-            StatisticsBeam1(ins_pnt, beam_data);
+            ins_pnt += AcadGeo.Vector3d.XAxis * 2000.0 + AcadGeo.Vector3d.YAxis * 1000.0;
+            ents.AddRange(StatisticsBeam1(ins_pnt, beam_data));
 
             foreach (var ent in ents)
             {
@@ -332,10 +360,10 @@ namespace SteelBeam
         public List<AcadDB.Entity> Beam2a(AcadGeo.Point3d ins_pnt, Beam beam, BeamDauGoiData data)
         {
             const double down_footer = 50.0;
-            const double up_footer = 100.0;
+            const double up_header = 100.0;
             List<AcadDB.Entity> ents = beam.DrawDauGoi(ins_pnt);
             double spacing_height = beam.Height - 2 * Beam.cover -
-                2 * SteelShapeC.corner_rad - down_footer - up_footer;
+                2 * SteelShapeC.corner_rad - down_footer - up_header;
 
             {
                 SteelShapeA shape_a = new SteelShapeA();
@@ -346,12 +374,12 @@ namespace SteelBeam
                 ents.AddRange(shape_a.DrawShapeA(ins_pnt));
 
                 InfoSteel2 info_s = new InfoSteel2();
-                info_s.Number = 1;
+                info_s.Number = 5;
                 info_s.Content = shape_a.GetContent();
                 info_s.Position = ins_pnt - AcadGeo.Vector3d.XAxis * OFFSET_TEXT_POS -
-                    AcadGeo.Vector3d.YAxis * (spacing_height / 3.0 - down_footer);
+                    AcadGeo.Vector3d.YAxis * (spacing_height / 3.0 - beam.Height * 0.5 + up_header);
                 info_s.AddSteelPos(ins_pnt - AcadGeo.Vector3d.XAxis * shape_a.Width * 0.5 -
-                    AcadGeo.Vector3d.YAxis * (spacing_height / 3.0 - down_footer));
+                    AcadGeo.Vector3d.YAxis * (spacing_height / 3.0 - beam.Height * 0.5 + up_header));
                 ents.AddRange(info_s.Draw());
             }
 
@@ -391,7 +419,7 @@ namespace SteelBeam
                 ents.AddRange(shape_b2.Draw());
 
                 InfoSteel info_s2 = new InfoSteel();
-                info_s2.Number = 1;
+                info_s2.Number = 3;
                 info_s2.Content = shape_b2.GetContent();
                 info_s2.SteelPos = shape_b2.QuerySteelPos();
                 info_s2.Angle = -angle_info_steel;
@@ -418,7 +446,7 @@ namespace SteelBeam
                 ents.AddRange(shape_b3.Draw());
 
                 InfoSteel info_s3 = new InfoSteel();
-                info_s3.Number = 1;
+                info_s3.Number = 4;
                 info_s3.Content = shape_b3.GetContent();
                 info_s3.SteelPos = shape_b3.QuerySteelPos();
                 info_s3.Angle = angle_info_steel;
@@ -441,12 +469,12 @@ namespace SteelBeam
                 ents.AddRange(shape_c1.DrawShapeC(ins_pnt));
 
                 InfoSteel2 info_s4 = new InfoSteel2();
-                info_s4.Number = 1;
+                info_s4.Number = 6;
                 info_s4.Content = shape_c1.GetContent();
                 info_s4.AddSteelPos(ins_pnt - AcadGeo.Vector3d.XAxis * SteelShapeC.corner_rad -
-                    AcadGeo.Vector3d.YAxis * (2.5 * spacing_height / 3.0 - down_footer));
+                    AcadGeo.Vector3d.YAxis * (2.5 * spacing_height / 3.0 - beam.Height * 0.5 + up_header));
                 AcadGeo.Point3d info_pos = ins_pnt;
-                info_pos -= AcadGeo.Vector3d.YAxis * (2.5 * spacing_height / 3.0 - down_footer);
+                info_pos -= AcadGeo.Vector3d.YAxis * (2.5 * spacing_height / 3.0 - beam.Height * 0.5 + up_header);
                 info_pos -= AcadGeo.Vector3d.XAxis * OFFSET_TEXT_POS;
                 info_s4.Position = info_pos;
                 ents.AddRange(info_s4.Draw());
@@ -463,7 +491,7 @@ namespace SteelBeam
                 ents.AddRange(shape_c2.DrawShapeC(shape_ins_pnt));
 
                 InfoSteel info_s5 = new InfoSteel();
-                info_s5.Number = 1;
+                info_s5.Number = 7;
                 info_s5.Content = shape_c2.GetContent();
                 List<AcadGeo.Point3d> steel_pos = new List<AcadGeo.Point3d>();
                 steel_pos.Add(shape_ins_pnt + AcadGeo.Vector3d.YAxis * SteelShapeC.corner_rad);
@@ -496,12 +524,12 @@ namespace SteelBeam
                 ents.AddRange(shape_a.DrawShapeA(ins_pnt));
 
                 InfoSteel2 info_s = new InfoSteel2();
-                info_s.Number = 1;
+                info_s.Number = 5;
                 info_s.Content = shape_a.GetContent();
                 info_s.Position = ins_pnt - AcadGeo.Vector3d.XAxis * OFFSET_TEXT_POS +
-                    AcadGeo.Vector3d.YAxis * (spacing_height / 3.0 + up_footer - down_footer);
+                    AcadGeo.Vector3d.YAxis * (spacing_height / 3.0 + up_footer - beam.Height * 0.5 + down_footer);
                 info_s.AddSteelPos(ins_pnt - AcadGeo.Vector3d.XAxis * shape_a.Width * 0.5 +
-                    AcadGeo.Vector3d.YAxis * (spacing_height / 3.0 + up_footer - down_footer));
+                    AcadGeo.Vector3d.YAxis * (spacing_height / 3.0 + up_footer - beam.Height * 0.5 + down_footer));
                 ents.AddRange(info_s.Draw());
             }
 
@@ -541,7 +569,7 @@ namespace SteelBeam
                 ents.AddRange(shape_b2.Draw());
 
                 InfoSteel info_s2 = new InfoSteel();
-                info_s2.Number = 1;
+                info_s2.Number = 3;
                 info_s2.Content = shape_b2.GetContent();
                 info_s2.SteelPos = shape_b2.QuerySteelPos();
                 info_s2.Angle = -angle_info_steel;
@@ -568,7 +596,7 @@ namespace SteelBeam
                 ents.AddRange(shape_b3.Draw());
 
                 InfoSteel info_s3 = new InfoSteel();
-                info_s3.Number = 1;
+                info_s3.Number = 2;
                 info_s3.Content = shape_b3.GetContent();
                 info_s3.SteelPos = shape_b3.QuerySteelPos();
                 info_s3.Angle = -angle_info_steel;
@@ -591,12 +619,12 @@ namespace SteelBeam
                 ents.AddRange(shape_c1.DrawShapeC(ins_pnt));
 
                 InfoSteel2 info_s4 = new InfoSteel2();
-                info_s4.Number = 1;
+                info_s4.Number = 6;
                 info_s4.Content = shape_c1.GetContent();
                 info_s4.AddSteelPos(ins_pnt - AcadGeo.Vector3d.XAxis * SteelShapeC.corner_rad +
-                    AcadGeo.Vector3d.YAxis * (2.5 * spacing_height / 3.0 + up_footer - down_footer));
+                    AcadGeo.Vector3d.YAxis * (2.5 * spacing_height / 3.0 + up_footer - beam.Height * 0.5 + down_footer));
                 AcadGeo.Point3d info_pos = ins_pnt;
-                info_pos += AcadGeo.Vector3d.YAxis * (2.5 * spacing_height / 3.0 + up_footer - down_footer);
+                info_pos += AcadGeo.Vector3d.YAxis * (2.5 * spacing_height / 3.0 + up_footer - beam.Height * 0.5 + down_footer);
                 info_pos -= AcadGeo.Vector3d.XAxis * OFFSET_TEXT_POS;
                 info_s4.Position = info_pos;
                 ents.AddRange(info_s4.Draw());
@@ -613,7 +641,7 @@ namespace SteelBeam
                 ents.AddRange(shape_c2.DrawShapeC(shape_ins_pnt));
 
                 InfoSteel info_s5 = new InfoSteel();
-                info_s5.Number = 1;
+                info_s5.Number = 7;
                 info_s5.Content = shape_c2.GetContent();
                 List<AcadGeo.Point3d> steel_pos = new List<AcadGeo.Point3d>();
                 steel_pos.Add(shape_ins_pnt - AcadGeo.Vector3d.YAxis * SteelShapeC.corner_rad);
@@ -629,6 +657,91 @@ namespace SteelBeam
             return ents;
         }
 
+        public List<AcadDB.Entity> StatisticsBeam2(AcadGeo.Point3d ins_pnt, BeamData beam_data)
+        {
+            List<AcadDB.Entity> ents = new List<AcadDB.Entity>();
+
+            AcadDB.ObjectId blk_thep_thang = AcadFuncsCSharp.BlkRefFuncs.GetBlock(BLK_THEP_THANG);
+            AcadDB.ObjectId blk_thep_cogs = AcadFuncsCSharp.BlkRefFuncs.GetBlock(BLK_THEP_COGS);
+            AcadDB.ObjectId blk_thep_cog = AcadFuncsCSharp.BlkRefFuncs.GetBlock(BLK_THEP_COG);
+            AcadDB.ObjectId blk_thep_dai = AcadFuncsCSharp.BlkRefFuncs.GetBlock(BLK_THEP_DAI);
+            AcadDB.ObjectId blk_thep_dai_moc = AcadFuncsCSharp.BlkRefFuncs.GetBlock(BLK_THEP_DAI_MOC);
+            AcadDB.ObjectId blk_tkkl = AcadFuncsCSharp.BlkRefFuncs.GetBlock(BLK_THKL);
+            AcadDB.ObjectId blk_thep_title = AcadFuncsCSharp.BlkRefFuncs.GetBlock(BLK_TK_TITLE);
+            if (AcadDB.ObjectId.Null == blk_thep_thang ||
+                AcadDB.ObjectId.Null == blk_thep_cogs ||
+                AcadDB.ObjectId.Null == blk_thep_cog ||
+                AcadDB.ObjectId.Null == blk_thep_dai ||
+                AcadDB.ObjectId.Null == blk_tkkl ||
+                AcadDB.ObjectId.Null == blk_thep_title ||
+                AcadDB.ObjectId.Null == blk_thep_dai_moc)
+            {
+                MessageBox.Show("Khong co block thep");
+                throw new Autodesk.AutoCAD.Runtime.Exception(ErrorStatus.OK, "Failed");
+            }
+
+            AcadDB.BlockReference blk_ref_title = new AcadDB.BlockReference(ins_pnt, blk_thep_title);
+            blk_ref_title.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(blk_ref_title);
+            ins_pnt -= AcadGeo.Vector3d.YAxis * 1100 - AcadGeo.Vector3d.XAxis * 375;
+
+            AcadDB.BlockReference blk_ref1 = new AcadDB.BlockReference(ins_pnt, blk_thep_thang);
+            blk_ref1.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(blk_ref1);
+            AcadFuncsCSharp.BlkRefFuncs.CloneAttribute(blk_ref1.Id, blk_thep_thang);
+            StatisticsSteelType1.StatisticsModel123_Steel1(beam_data, blk_ref1);
+            ins_pnt -= AcadGeo.Vector3d.YAxis * OFFSET_BLK_TK;
+
+            AcadDB.BlockReference blk_ref2 = new AcadDB.BlockReference(ins_pnt, blk_thep_thang);
+            blk_ref2.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(blk_ref2);
+            AcadFuncsCSharp.BlkRefFuncs.CloneAttribute(blk_ref2.Id, blk_thep_thang);
+            StatisticsSteelType1.StatisticsModel123_Steel2(beam_data, blk_ref2);
+            ins_pnt -= AcadGeo.Vector3d.YAxis * OFFSET_BLK_TK;
+
+            AcadDB.BlockReference blk_ref3 = new AcadDB.BlockReference(ins_pnt, blk_thep_cogs);
+            blk_ref3.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(blk_ref3);
+            AcadFuncsCSharp.BlkRefFuncs.CloneAttribute(blk_ref3.Id, blk_thep_cogs);
+            StatisticsSteelType1.StatisticsModel123_Steel3(beam_data, blk_ref3);
+            ins_pnt -= AcadGeo.Vector3d.YAxis * OFFSET_BLK_TK;
+
+            AcadDB.BlockReference blk_ref4 = new AcadDB.BlockReference(ins_pnt, blk_thep_cog);
+            blk_ref4.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(blk_ref4);
+            AcadFuncsCSharp.BlkRefFuncs.CloneAttribute(blk_ref4.Id, blk_thep_cog);
+            StatisticsSteelType1.StatisticsModel123_Steel4(beam_data, blk_ref4);
+            ins_pnt -= AcadGeo.Vector3d.YAxis * OFFSET_BLK_TK;
+
+            AcadDB.BlockReference blk_ref5 = new AcadDB.BlockReference(ins_pnt, blk_thep_dai);
+            blk_ref5.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(blk_ref5);
+            AcadFuncsCSharp.BlkRefFuncs.CloneAttribute(blk_ref5.Id, blk_thep_dai);
+            StatisticsSteelType1.StatisticsModel123_Steel5(beam_data, blk_ref5);
+            ins_pnt -= AcadGeo.Vector3d.YAxis * OFFSET_BLK_TK;
+
+            AcadDB.BlockReference blk_ref6 = new AcadDB.BlockReference(ins_pnt, blk_thep_dai_moc);
+            blk_ref6.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(blk_ref6);
+            AcadFuncsCSharp.BlkRefFuncs.CloneAttribute(blk_ref6.Id, blk_thep_dai_moc);
+            StatisticsSteelType1.StatisticsModel2_Steel6(beam_data, blk_ref6);
+            ins_pnt -= AcadGeo.Vector3d.YAxis * OFFSET_BLK_TK;
+
+            AcadDB.BlockReference blk_ref7 = new AcadDB.BlockReference(ins_pnt, blk_thep_dai_moc);
+            blk_ref7.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(blk_ref7);
+            AcadFuncsCSharp.BlkRefFuncs.CloneAttribute(blk_ref7.Id, blk_thep_dai_moc);
+            StatisticsSteelType1.StatisticsModel2_Steel7(beam_data, blk_ref7);
+            ins_pnt -= AcadGeo.Vector3d.YAxis * OFFSET_BLK_TK;
+
+            AcadDB.BlockReference ins_tkkl = new AcadDB.BlockReference(ins_pnt, blk_tkkl);
+            ins_tkkl.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(ins_tkkl);
+            //ins_pnt -= AcadGeo.Vector3d.YAxis * OFFSET_BLK_TK;
+
+            return ents;
+        }
+
         public void DrawBeam2(BeamData beam_data, AcadGeo.Point3d ins_pnt)
         {
             Beam beam = new Beam();
@@ -640,6 +753,9 @@ namespace SteelBeam
 
             ins_pnt = ins_pnt + AcadGeo.Vector3d.XAxis * 2000.0;
             ents.AddRange(Beam2b(ins_pnt, beam, beam_data.giua_data));
+
+            ins_pnt += AcadGeo.Vector3d.XAxis * 2000.0 + AcadGeo.Vector3d.YAxis * 1000.0;
+            ents.AddRange(StatisticsBeam2(ins_pnt, beam_data));
 
             foreach (var ent in ents)
             {
@@ -669,7 +785,7 @@ namespace SteelBeam
                 ents.AddRange(shape_a2.DrawShapeA(ins_pnt));
 
                 InfoSteel2 info_s = new InfoSteel2();
-                info_s.Number = 1;
+                info_s.Number = 5;
                 info_s.Content = shape_a1.GetContent();
                 info_s.Position = ins_pnt - AcadGeo.Vector3d.XAxis * OFFSET_TEXT_POS -
                     AcadGeo.Vector3d.YAxis * 210.0;
@@ -716,7 +832,7 @@ namespace SteelBeam
                 ents.AddRange(shape_b2.Draw());
 
                 InfoSteel info_s2 = new InfoSteel();
-                info_s2.Number = 1;
+                info_s2.Number = 3;
                 info_s2.Content = shape_b2.GetContent();
                 info_s2.SteelPos = shape_b2.QuerySteelPos();
                 info_s2.Angle = -angle_info_steel;
@@ -743,7 +859,7 @@ namespace SteelBeam
                 ents.AddRange(shape_b3.Draw());
 
                 InfoSteel info_s3 = new InfoSteel();
-                info_s3.Number = 1;
+                info_s3.Number = 4;
                 info_s3.Content = shape_b3.GetContent();
                 info_s3.SteelPos = shape_b3.QuerySteelPos();
                 info_s3.Angle = angle_info_steel;
@@ -768,7 +884,7 @@ namespace SteelBeam
                 ents.AddRange(shape_b4.Draw());
 
                 InfoSteel info_s4 = new InfoSteel();
-                info_s4.Number = 1;
+                info_s4.Number = 6;
                 info_s4.Content = shape_b4.GetContent();
                 info_s4.SteelPos = shape_b4.QuerySteelPos();
                 info_s4.Angle = angle_info_steel;
@@ -791,7 +907,7 @@ namespace SteelBeam
                 ents.AddRange(shape_c1.DrawShapeC(ins_pnt));
 
                 InfoSteel info_s4 = new InfoSteel();
-                info_s4.Number = 1;
+                info_s4.Number = 7;
                 info_s4.Content = shape_c1.GetContent();
                 List<AcadGeo.Point3d> steel_pos = new List<AcadGeo.Point3d>();
                 steel_pos.Add(ins_pnt + AcadGeo.Vector3d.YAxis * SteelShapeC.corner_rad);
@@ -815,7 +931,7 @@ namespace SteelBeam
                 ents.AddRange(shape_c2.DrawShapeC(shape_ins_pnt));
 
                 InfoSteel info_s5 = new InfoSteel();
-                info_s5.Number = 1;
+                info_s5.Number = 8;
                 info_s5.Content = shape_c2.GetContent();
                 List<AcadGeo.Point3d> steel_pos = new List<AcadGeo.Point3d>();
                 steel_pos.Add(shape_ins_pnt + AcadGeo.Vector3d.YAxis * SteelShapeC.corner_rad);
@@ -853,7 +969,7 @@ namespace SteelBeam
                 ents.AddRange(shape_a2.DrawShapeA(ins_pnt));
 
                 InfoSteel2 info_s = new InfoSteel2();
-                info_s.Number = 1;
+                info_s.Number = 5;
                 info_s.Content = shape_a1.GetContent();
                 info_s.Position = ins_pnt - AcadGeo.Vector3d.XAxis * OFFSET_TEXT_POS -
                     AcadGeo.Vector3d.YAxis * 130.0;
@@ -900,7 +1016,7 @@ namespace SteelBeam
                 ents.AddRange(shape_b2.Draw());
 
                 InfoSteel info_s2 = new InfoSteel();
-                info_s2.Number = 1;
+                info_s2.Number = 3;
                 info_s2.Content = shape_b2.GetContent();
                 info_s2.SteelPos = shape_b2.QuerySteelPos();
                 info_s2.Angle = -angle_info_steel;
@@ -927,7 +1043,7 @@ namespace SteelBeam
                 ents.AddRange(shape_b3.Draw());
 
                 InfoSteel info_s3 = new InfoSteel();
-                info_s3.Number = 1;
+                info_s3.Number = 2;
                 info_s3.Content = shape_b3.GetContent();
                 info_s3.SteelPos = shape_b3.QuerySteelPos();
                 info_s3.Angle = -angle_info_steel;
@@ -952,7 +1068,7 @@ namespace SteelBeam
                 ents.AddRange(shape_b4.Draw());
 
                 InfoSteel info_s4 = new InfoSteel();
-                info_s4.Number = 1;
+                info_s4.Number = 6;
                 info_s4.Content = shape_b4.GetContent();
                 info_s4.SteelPos = shape_b4.QuerySteelPos();
                 info_s4.Angle = -angle_info_steel;
@@ -975,7 +1091,7 @@ namespace SteelBeam
                 ents.AddRange(shape_c1.DrawShapeC(ins_pnt));
 
                 InfoSteel info_s4 = new InfoSteel();
-                info_s4.Number = 1;
+                info_s4.Number = 7;
                 info_s4.Content = shape_c1.GetContent();
                 List<AcadGeo.Point3d> steel_pos = new List<AcadGeo.Point3d>();
                 steel_pos.Add(ins_pnt + AcadGeo.Vector3d.YAxis * SteelShapeC.corner_rad);
@@ -999,7 +1115,7 @@ namespace SteelBeam
                 ents.AddRange(shape_c2.DrawShapeC(shape_ins_pnt));
 
                 InfoSteel info_s5 = new InfoSteel();
-                info_s5.Number = 1;
+                info_s5.Number = 8;
                 info_s5.Content = shape_c2.GetContent();
                 List<AcadGeo.Point3d> steel_pos = new List<AcadGeo.Point3d>();
                 steel_pos.Add(shape_ins_pnt - AcadGeo.Vector3d.YAxis * SteelShapeC.corner_rad);
@@ -1015,6 +1131,91 @@ namespace SteelBeam
             return ents;
         }
 
+        public List<AcadDB.Entity> StatisticsBeam3(AcadGeo.Point3d ins_pnt, BeamData beam_data)
+        {
+            List<AcadDB.Entity> ents = new List<AcadDB.Entity>();
+
+            AcadDB.ObjectId blk_thep_thang = AcadFuncsCSharp.BlkRefFuncs.GetBlock(BLK_THEP_THANG);
+            AcadDB.ObjectId blk_thep_cogs = AcadFuncsCSharp.BlkRefFuncs.GetBlock(BLK_THEP_COGS);
+            AcadDB.ObjectId blk_thep_cog = AcadFuncsCSharp.BlkRefFuncs.GetBlock(BLK_THEP_COG);
+            AcadDB.ObjectId blk_thep_dai = AcadFuncsCSharp.BlkRefFuncs.GetBlock(BLK_THEP_DAI);
+            AcadDB.ObjectId blk_thep_dai_moc = AcadFuncsCSharp.BlkRefFuncs.GetBlock(BLK_THEP_DAI_MOC);
+            AcadDB.ObjectId blk_tkkl = AcadFuncsCSharp.BlkRefFuncs.GetBlock(BLK_THKL);
+            AcadDB.ObjectId blk_thep_title = AcadFuncsCSharp.BlkRefFuncs.GetBlock(BLK_TK_TITLE);
+            if (AcadDB.ObjectId.Null == blk_thep_thang ||
+                AcadDB.ObjectId.Null == blk_thep_cogs ||
+                AcadDB.ObjectId.Null == blk_thep_cog ||
+                AcadDB.ObjectId.Null == blk_thep_dai ||
+                AcadDB.ObjectId.Null == blk_tkkl ||
+                AcadDB.ObjectId.Null == blk_thep_title ||
+                AcadDB.ObjectId.Null == blk_thep_dai_moc)
+            {
+                MessageBox.Show("Khong co block thep");
+                throw new Autodesk.AutoCAD.Runtime.Exception(ErrorStatus.OK, "Failed");
+            }
+
+            AcadDB.BlockReference blk_ref_title = new AcadDB.BlockReference(ins_pnt, blk_thep_title);
+            blk_ref_title.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(blk_ref_title);
+            ins_pnt -= AcadGeo.Vector3d.YAxis * 1100 - AcadGeo.Vector3d.XAxis * 375;
+
+            AcadDB.BlockReference blk_ref1 = new AcadDB.BlockReference(ins_pnt, blk_thep_thang);
+            blk_ref1.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(blk_ref1);
+            AcadFuncsCSharp.BlkRefFuncs.CloneAttribute(blk_ref1.Id, blk_thep_thang);
+            StatisticsSteelType1.StatisticsModel123_Steel1(beam_data, blk_ref1);
+            ins_pnt -= AcadGeo.Vector3d.YAxis * OFFSET_BLK_TK;
+
+            AcadDB.BlockReference blk_ref2 = new AcadDB.BlockReference(ins_pnt, blk_thep_thang);
+            blk_ref2.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(blk_ref2);
+            AcadFuncsCSharp.BlkRefFuncs.CloneAttribute(blk_ref2.Id, blk_thep_thang);
+            StatisticsSteelType1.StatisticsModel123_Steel2(beam_data, blk_ref2);
+            ins_pnt -= AcadGeo.Vector3d.YAxis * OFFSET_BLK_TK;
+
+            AcadDB.BlockReference blk_ref3 = new AcadDB.BlockReference(ins_pnt, blk_thep_cogs);
+            blk_ref3.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(blk_ref3);
+            AcadFuncsCSharp.BlkRefFuncs.CloneAttribute(blk_ref3.Id, blk_thep_cogs);
+            StatisticsSteelType1.StatisticsModel123_Steel3(beam_data, blk_ref3);
+            ins_pnt -= AcadGeo.Vector3d.YAxis * OFFSET_BLK_TK;
+
+            AcadDB.BlockReference blk_ref4 = new AcadDB.BlockReference(ins_pnt, blk_thep_cog);
+            blk_ref4.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(blk_ref4);
+            AcadFuncsCSharp.BlkRefFuncs.CloneAttribute(blk_ref4.Id, blk_thep_cog);
+            StatisticsSteelType1.StatisticsModel123_Steel4(beam_data, blk_ref4);
+            ins_pnt -= AcadGeo.Vector3d.YAxis * OFFSET_BLK_TK;
+
+            AcadDB.BlockReference blk_ref5 = new AcadDB.BlockReference(ins_pnt, blk_thep_dai);
+            blk_ref5.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(blk_ref5);
+            AcadFuncsCSharp.BlkRefFuncs.CloneAttribute(blk_ref5.Id, blk_thep_dai);
+            StatisticsSteelType1.StatisticsModel123_Steel5(beam_data, blk_ref5);
+            ins_pnt -= AcadGeo.Vector3d.YAxis * OFFSET_BLK_TK;
+
+            AcadDB.BlockReference blk_ref6 = new AcadDB.BlockReference(ins_pnt, blk_thep_dai_moc);
+            blk_ref6.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(blk_ref6);
+            AcadFuncsCSharp.BlkRefFuncs.CloneAttribute(blk_ref6.Id, blk_thep_dai_moc);
+            StatisticsSteelType1.StatisticsModel2_Steel6(beam_data, blk_ref6);
+            ins_pnt -= AcadGeo.Vector3d.YAxis * OFFSET_BLK_TK;
+
+            AcadDB.BlockReference blk_ref7 = new AcadDB.BlockReference(ins_pnt, blk_thep_dai_moc);
+            blk_ref7.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(blk_ref7);
+            AcadFuncsCSharp.BlkRefFuncs.CloneAttribute(blk_ref7.Id, blk_thep_dai_moc);
+            StatisticsSteelType1.StatisticsModel2_Steel7(beam_data, blk_ref7);
+            ins_pnt -= AcadGeo.Vector3d.YAxis * OFFSET_BLK_TK;
+
+            AcadDB.BlockReference ins_tkkl = new AcadDB.BlockReference(ins_pnt, blk_tkkl);
+            ins_tkkl.ScaleFactors = new AcadGeo.Scale3d(SCALING_TK, SCALING_TK, SCALING_TK);
+            AcadFuncsCSharp.AcadFuncs.AddNewEnt(ins_tkkl);
+            //ins_pnt -= AcadGeo.Vector3d.YAxis * OFFSET_BLK_TK;
+
+            return ents;
+        }
+
         public void DrawBeam3(BeamData beam_data, AcadGeo.Point3d ins_pnt)
         {
             Beam beam = new Beam();
@@ -1026,6 +1227,9 @@ namespace SteelBeam
 
             ins_pnt = ins_pnt + AcadGeo.Vector3d.XAxis * 2000.0;
             ents.AddRange(Beam3b(ins_pnt, beam, beam_data.giua_data));
+
+            ins_pnt += AcadGeo.Vector3d.XAxis * 2000.0 + AcadGeo.Vector3d.YAxis * 1000.0;
+            ents.AddRange(StatisticsBeam3(ins_pnt, beam_data));
 
             foreach (var ent in ents)
             {

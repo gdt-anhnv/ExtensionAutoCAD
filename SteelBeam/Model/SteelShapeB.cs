@@ -59,6 +59,7 @@ namespace SteelBeam
 
         public List<AcadDB.Entity> Draw()
         {
+            //return new List<AcadDB.Entity>();
             if (number_steel < 2)
                 return new List<AcadDB.Entity>();
 
