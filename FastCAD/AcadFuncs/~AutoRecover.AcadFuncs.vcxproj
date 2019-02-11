@@ -218,7 +218,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_ARX|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(OBJECTARX_2017)\inc;$(OBJECTARX_2017)\inc-x64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OBJECTARX_2018)\inc;$(OBJECTARX_2018)\inc-x64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_AFXEXT;_USING_ARX_;UNICODE;_AFXDLL</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ProgramDataBaseFileName>$(PTFASTER_BUILD)\$(ProjectName).pdb</ProgramDataBaseFileName>
@@ -227,7 +227,7 @@
     </ClCompile>
     <Lib>
       <AdditionalDependencies>accore.lib;acad.lib;acui21.lib;adui21.lib;ac1st21.lib;acdb21.lib;acge21.lib;acgiapi.lib;acISMobj21.lib;rxapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OBJECTARX_2017)\lib-x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OBJECTARX_2018)\lib-x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Windows</SubSystem>
     </Lib>
   </ItemDefinitionGroup>

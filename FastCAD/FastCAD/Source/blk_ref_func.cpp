@@ -221,3 +221,58 @@ void BlkRefFunc::PasteBlk()
 	catch(...)
 	{ }
 }
+
+void BlkRefFunc::ChangeBlkBase()
+{
+	try
+	{
+		AcDbObjectIdArray ids = ARXFuncs::GetObjIdsByPicking();
+		if (0 == ids.length())
+			return;
+
+		AcGePoint3d ins_pnt = AcGePoint3d::kOrigin;
+		AcDbObjectId btr_id = AcDbObjectId::kNull;
+		{
+			ObjectWrap<AcDbBlockReference> br_obj(DBObject::OpenObjectById<AcDbBlockReference>(ids[0]));
+			if (nullptr == br_obj.object)
+				return;
+			ins_pnt = br_obj.object->position();
+			btr_id = br_obj.object->blockTableRecord();
+		}
+		AcGePoint3d bp = UserFuncs::UserGetPoint(L"Pick new base point");
+
+		AcGeMatrix3d trans = AcGeMatrix3d::kIdentity;
+		trans.setToTranslation(ins_pnt - bp);
+
+		ObjectWrap<AcDbBlockTableRecord> blk_tbl_rcd(DBObject::OpenObjectById<AcDbBlockTableRecord>(btr_id));
+		AcDbBlockTableRecordIterator* iter = nullptr;
+		blk_tbl_rcd.object->newIterator(iter);
+
+		while (!iter->done())
+		{
+			AcDbEntity* ent = nullptr;
+			if (Acad::eOk != iter->getEntity(ent, AcDb::kForRead))
+				continue;
+
+			ent->upgradeOpen();
+			ent->transformBy(trans);
+			ent->close();
+
+			iter->step();
+		}
+
+		trans = trans.inverse();
+		AcDbObjectIdArray br_ids = AcDbObjectIdArray();
+		if (Acad::eOk == blk_tbl_rcd.object->getBlockReferenceIds(br_ids))
+		{
+			for (int i = 0; i < br_ids.length(); i++)
+			{
+				ObjectWrap<AcDbBlockReference> br_obj(DBObject::OpenObjectById<AcDbBlockReference>(br_ids[i]));
+				br_obj.object->upgradeOpen();
+				br_obj.object->recordGraphicsModified();
+				br_obj.object->transformBy(trans);
+			}
+		}
+	}
+	catch(...) {}
+}
