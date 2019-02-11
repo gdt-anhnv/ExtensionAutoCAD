@@ -1,3 +1,4 @@
+#ifdef _ACAD_MEC_
 #include "acm.h"
 #include "acmdef.h"
 #include "bommgr.h"
@@ -15,3 +16,4 @@
 #include "datumtgt.h"
 #include "idsym.h"
 #include "stdansi.h"
+#endif

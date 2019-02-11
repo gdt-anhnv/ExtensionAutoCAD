@@ -57,8 +57,6 @@
 //#include "core_rxmfcapi.h"
 #include "gepent3d.h"
 
-#include "acm.h"
-
 #include <iostream>
 #include <tchar.h>
 
