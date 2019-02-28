@@ -142,7 +142,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>AcadFuncs_vs2012.lib;accore.lib;acad.lib;acui20.lib;adui20.lib;ac1st20.lib;acdb20.lib;acge20.lib;acgiapi.lib;acISMobj20.lib;rxapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\ObjectARX 2016\lib-x64;$(FASTCAD_BUILD);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OBJECTARX_2016)\lib-x64;$(FASTCAD_BUILD);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>./FastCAD.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>

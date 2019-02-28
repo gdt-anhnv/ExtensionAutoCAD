@@ -4,6 +4,7 @@
 #include "instance_balloon.h"
 #include "blk_ref_func.h"
 #include "editor_reactor.h"
+#include "edit_curve.h"
 
 #define GROUPNAME					L"PTFasterCommand"
 #define CONTOURLINE					L"ContourLine"
@@ -14,6 +15,7 @@
 #define COPY_NAME_BLK				L"GetBlkName"
 #define COPY_BLK					L"CopyBlk"
 #define PASTE_BLK					L"PasteBlk"
+#define CONNECT_LINES				L"ConnectLines"
 #define TEST						L"Test"
 
 std::wstring groupname = GROUPNAME;
@@ -22,6 +24,7 @@ std::wstring command_name[] = {
 	COPY_NAME_BLK,
 	COPY_BLK,
 	PASTE_BLK,
+	CONNECT_LINES,
 	TEST
 };
 
@@ -41,6 +44,8 @@ static AcRxFunctionPtr GetFuncs(std::wstring cmd)
 		return BlkRefFunc::CopyBlk;
 	if (0 == cmd.compare(PASTE_BLK))
 		return BlkRefFunc::PasteBlk;
+	if (0 == cmd.compare(CONNECT_LINES))
+		return EditCurve::ConnectLine;
 	if (0 == cmd.compare(TEST))
 		return InstanceBalloon::Test;
 }

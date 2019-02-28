@@ -75,12 +75,12 @@ void InstanceBalloon::DrawBalloon()
 				flag_id = flag_wrap.object->id();
 			}
 
-			ads_point pt1 = { 0.0, 0.0 };
+			ads_point pt1 = { 20.0, 20.0 };
 			acedCommandS(RTSTR, L"_.ampartref", RTPOINT, pt1, RTNONE);
 
 			AcDbObjectIdArray ids = GetNextEnts(flag_id);
 			source_part_id = ids[0];
-			test_ids.push_back(BalloonData(ids[0], AcGePoint3d::kOrigin));
+			test_ids.push_back(BalloonData(ids[0], AcGePoint3d(20.0, 20.0, 0.0)));
 
 			ObjectWrap<AcDbPoint> flag_pnt(DBObject::OpenObjectById<AcDbPoint>(flag_id));
 			flag_pnt.object->upgradeOpen();
@@ -153,7 +153,7 @@ static void Draw(std::list<BalloonData>& test_ids)
 		ads_name sel;
 		acdbGetAdsName(sel, iter->part_id);
 
-		ads_point pt2 = { iter->position.x, 0.0 };
+		ads_point pt2 = { iter->position.x, 20.0 };
 		ads_point pt3 = { iter->position.x, 200.0 };
 		std::wstring pt3_str = std::wstring(std::to_wstring(iter->position.x));
 		pt3_str.append(L",200.0");

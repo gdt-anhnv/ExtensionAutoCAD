@@ -3,13 +3,13 @@ rem setx FASTCAD_BUILD "D:\Github\ExtensionAutoCAD\FastCAD\Build"
 
 rem setx TOOLARX_ACADFUNCS "D:\Github\ExtensionAutoCAD\FastCAD\AcadFuncs\Source"
 
-rem setx OBJECTARX_2016 "C:\ObjectARX 2016"
+setx OBJECTARX_2016 "D:\Hexagon\CADWorx\CADWorx Development\ObjectARX\2016"
 
 rem setx OBJECTARX_2014	"C:\Autodesk\Autodesk_ObjectARX_2014_Win_64_and_32Bit"
 
 rem setx OBJECTARX_2018 "C:\Autodesk\Autodesk_ObjectARX_2018_Win_64_and_32_Bit"
 
-setx OBJECTARX_2017 "C:\Autodesk\Autodesk_ObjectARX_2017_Win_64_and_32_Bit"
+rem setx OBJECTARX_2017 "D:\Hexagon\CADWorx\CADWorx Development\ObjectARX\2017"
 
 rem setx OBJECTARX_2019 "C:\Autodesk\Autodesk_ObjectARX_2019_Win_64_and_32_Bit"
 

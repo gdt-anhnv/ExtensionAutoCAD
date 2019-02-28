@@ -56,6 +56,7 @@
 #include "acedads.h" // used acedGetString
 //#include "core_rxmfcapi.h"
 #include "gepent3d.h"
+#include "actrans.h"
 
 #include <iostream>
 #include <tchar.h>

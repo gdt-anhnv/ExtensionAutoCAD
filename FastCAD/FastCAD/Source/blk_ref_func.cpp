@@ -1,3 +1,4 @@
+#include "../stdafx.h"
 #include "blk_ref_func.h"
 #include "../../AcadFuncs/Source/acad_funcs_header.h"
 #include "../../AcadFuncs/Source/Wrap/acad_obj_wrap.h"
@@ -48,42 +49,55 @@ void BlkRefFunc::CopyBlk()
 	replace_blk_names.clear();
 	try
 	{
-		AcDbObjectId blk_id = AcDbObjectId::kNull;
+		AcDbObjectIdArray blk_ids = AcDbObjectIdArray();
+		AcDbObjectIdArray picked_ids = AcDbObjectIdArray();
 		{
-			AcDbObjectIdArray ids = ARXFuncs::GetObjIdsByPicking();
-			if (0 == ids.length())
+			picked_ids = UserFuncs::UserGetEnts();
+			if (0 == picked_ids.length())
 				return;
 
-			AcDbObjectId picked_id = ids[0];
-			ObjectWrap<AcDbBlockReference> blk_ref(DBObject::OpenObjectById<AcDbBlockReference>(picked_id));
-			if (nullptr == blk_ref.object)
-				return;
+			for (int i = 0; i < picked_ids.length(); i++)
+			{
+				ObjectWrap<AcDbBlockReference> blk_ref(DBObject::OpenObjectById<AcDbBlockReference>(picked_ids[i]));
+				if (nullptr == blk_ref.object)
+					continue;
 
-			blk_id = blk_ref.object->blockTableRecord();
-			ObjectWrap<AcDbBlockTableRecord> source_blk(DBObject::OpenObjectById<AcDbBlockTableRecord>(blk_id));
-			if (nullptr == source_blk.object)
-				return;
+				blk_ids.append(blk_ref.object->blockTableRecord());
+				ObjectWrap<AcDbBlockTableRecord> source_blk(
+					DBObject::OpenObjectById<AcDbBlockTableRecord>(blk_ref.object->blockTableRecord()));
+				if (nullptr == source_blk.object)
+					continue;
+			}
 		}
 
-		AcDbObjectIdArray ids = GetAllContainedBlocked(blk_id);
-		for (int i = 0; i < ids.length(); i++)
-		{
-			ObjectWrap<AcDbBlockTableRecord> blk_tbl_rcd(DBObject::OpenObjectById<AcDbBlockTableRecord>(ids[i]));
-			if (nullptr == blk_tbl_rcd.object)
-				throw int(1);
-
-			AcString name = AcString();
-			blk_tbl_rcd.object->getName(name);
-			replace_blk_names.push_back(name);
-		}
+		if (0 == blk_ids.length())
+			return;
 
 		ads_name ads;
 		acedSSAdd(NULL, NULL, ads);
-		ads_name tmp = { 0, 0 };
-		Acad::ErrorStatus ret = acdbGetAdsName(tmp, ids[0]);
-		acedSSAdd(tmp, ads, ads);
+		for (int i = 0; i < picked_ids.length(); i++)
+		{
+			ads_name tmp = { 0, 0 };
+			Acad::ErrorStatus ret = acdbGetAdsName(tmp, picked_ids[i]);
+			acedSSAdd(tmp, ads, ads);
+		}
 
 		acedCommandS(RTSTR, L"COPYCLIP", RTPICKS, ads, RTSTR, L"", 0);
+
+		for (int i = 0; i < blk_ids.length(); i++)
+		{
+			AcDbObjectIdArray ids = GetAllContainedBlocked(blk_ids[i]);
+			for (int i = 0; i < ids.length(); i++)
+			{
+				ObjectWrap<AcDbBlockTableRecord> blk_tbl_rcd(DBObject::OpenObjectById<AcDbBlockTableRecord>(ids[i]));
+				if (nullptr == blk_tbl_rcd.object)
+					throw int(1);
+
+				AcString name = AcString();
+				blk_tbl_rcd.object->getName(name);
+				replace_blk_names.push_back(name);
+			}
+		}
 	}
 	catch (...)
 	{
@@ -149,7 +163,7 @@ static AcDbObjectIdArray ContainedBlocks(AcDbObjectId blk_id)
 	for (; !blk_iter->done(); blk_iter->step())
 	{
 		ObjectWrap<AcDbEntity> sub_ent(nullptr);
-		blk_iter->getEntity(sub_ent.object);
+		blk_iter->getEntity(sub_ent.object, AcDb::OpenMode::kForRead);
 
 		if (sub_ent.object->isKindOf(AcDbBlockReference::desc()))
 		{
@@ -163,15 +177,18 @@ static AcDbObjectIdArray ContainedBlocks(AcDbObjectId blk_id)
 struct KeepRefBlk
 {
 	AcDbObjectId blk_id;
+	AcString name_blk;
 	AcDbObjectIdArray ref_ids;
 
 	KeepRefBlk() :
 		blk_id(AcDbObjectId::kNull),
+		name_blk(AcString()),
 		ref_ids(AcDbObjectIdArray())
 	{}
 
-	KeepRefBlk(AcDbObjectId bid, AcDbObjectIdArray rids) :
+	KeepRefBlk(AcDbObjectId bid, AcString nb, AcDbObjectIdArray rids) :
 		blk_id(bid),
+		name_blk(nb),
 		ref_ids(rids)
 	{}
 };
@@ -180,6 +197,7 @@ void BlkRefFunc::PasteBlk()
 {
 	try
 	{
+		//AcTransaction *tr = acTransactionManagerPtr()->startTransaction();
 		std::list<KeepRefBlk> ref_blks = std::list<KeepRefBlk>();
 		for (auto iter = replace_blk_names.begin(); iter != replace_blk_names.end(); iter++)
 		{
@@ -195,14 +213,18 @@ void BlkRefFunc::PasteBlk()
 				blk_tbl_rcd.object->getBlockReferenceIds(ids);
 			}
 
-			ref_blks.push_back(KeepRefBlk(blk_id, ids));
+			ref_blks.push_back(KeepRefBlk(blk_id, *iter, ids));
 		}
 
-		acedCommandS(RTSTR, L"PASTECLIP", RTSTR, L"", 0);
+		if (RTNORM != acedCommandS(RTSTR, L"PASTECLIP", RTSTR, L"", 0))
+		{
+			//acTransactionManagerPtr()->abortTransaction();
+			return;
+		}
 
 		for (auto iter = ref_blks.begin(); iter != ref_blks.end(); iter++)
 		{
-			AcDbObjectId rep_id = BlkNameExisted(replace_blk_names.front());
+			AcDbObjectId rep_id = BlkNameExisted(iter->name_blk);
 			for (int i = 0; i < iter->ref_ids.length(); i++)
 			{
 				ObjectWrap<AcDbBlockReference> blk_ref(DBObject::OpenObjectById<AcDbBlockReference>(iter->ref_ids[i]));

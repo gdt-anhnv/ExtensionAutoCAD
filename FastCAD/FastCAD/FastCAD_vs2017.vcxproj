@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -48,7 +48,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -137,22 +137,28 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;FASTCADVS2017_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;FASTCADVS2017_EXPORTS;_WINDOWS;_USRDLL;_AFXDLL;_USING_ARX_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(OBJECTARX_2019)\inc;$(OBJECTARX_2019)\inc-x64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OBJECTARX_2017)\inc;$(OBJECTARX_2017)\inc-x64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>$(OBJECTARX_2019)\lib-x64;$(FASTCAD_BUILD);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>accore.lib;acad.lib;acui23.lib;adui23.lib;ac1st23.lib;acdb23.lib;acge23.lib;acgiapi.lib;acISMobj23.lib;rxapi.lib;AcadFuncs_vs2017.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OBJECTARX_2017)\lib-x64;$(FASTCAD_BUILD);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>accore.lib;acad.lib;acui21.lib;adui21.lib;ac1st21.lib;acdb21.lib;acge21.lib;acgiapi.lib;acISMobj21.lib;rxapi.lib;AcadFuncs_vs2017.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>FastCAD.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\acad_mechanical_inc.h" />
+    <ClInclude Include="Source\blk_ref_func.h" />
     <ClInclude Include="Source\contour_line.h" />
+    <ClInclude Include="Source\editor_reactor.h" />
+    <ClInclude Include="Source\edit_curve.h" />
     <ClInclude Include="Source\fast_dim.h" />
+    <ClInclude Include="Source\instance_balloon.h" />
     <ClInclude Include="Source\SphericalTree\mtree.h" />
     <ClInclude Include="Source\SphericalTree\node.h" />
     <ClInclude Include="Source\SphericalTree\point2d.h" />
@@ -162,8 +168,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\acrx_entry_point.cpp" />
+    <ClCompile Include="Source\blk_ref_func.cpp" />
     <ClCompile Include="Source\contour_line.cpp" />
+    <ClCompile Include="Source\editor_reactor.cpp" />
+    <ClCompile Include="Source\edit_curve.cpp" />
     <ClCompile Include="Source\fast_dim.cpp" />
+    <ClCompile Include="Source\instance_balloon.cpp" />
     <ClCompile Include="Source\SphericalTree\point2d.cpp" />
     <ClCompile Include="Source\SphericalTree\vector2d.cpp" />
     <ClCompile Include="Source\triangle.cpp" />
