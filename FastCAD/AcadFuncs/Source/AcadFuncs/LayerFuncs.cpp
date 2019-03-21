@@ -23,16 +23,18 @@ AcDbLayerTableRecord* LayerFuncs::GetLayerTableRecord(AcDbDatabase * db, const w
 bool LayerFuncs::CheckExistedLayer(AcDbDatabase * db, const wchar_t * layer)
 {
 	Acad::ErrorStatus ret = Acad::eOk;
-	AcDbLayerTableIterator* iter = NULL;
+	IteratorWrap<AcDbLayerTableIterator> iter_wrap;
 	{
+		AcDbLayerTableIterator* iter = NULL;
 		ObjectWrap<AcDbLayerTable> layer_tbl(GetLayerTable(db));
 		layer_tbl.object->newIterator(iter);
+		iter_wrap.pointer = iter;
 	}
 
-	while (!iter->done())
+	while (!iter_wrap.pointer->done())
 	{
 		AcDbLayerTableRecord* rcd = NULL;
-		if (iter->getRecord(rcd, AcDb::kForRead) == Acad::eOk)
+		if (iter_wrap.pointer->getRecord(rcd, AcDb::kForRead) == Acad::eOk)
 		{
 			ObjectWrap<AcDbLayerTableRecord> layer_wrap(rcd);
 			wchar_t* layer_name;
@@ -40,14 +42,12 @@ bool LayerFuncs::CheckExistedLayer(AcDbDatabase * db, const wchar_t * layer)
 			std::size_t length = std::wcslen(layer);
 			if (Functions::IsMatchRegex((wchar_t*)layer, layer_name))
 			{
-				delete iter;
 				return true;
 			}
 		}
-		iter->step();
+		iter_wrap.pointer->step();
 	}
 
-	delete iter;
 	return false;
 }
 
@@ -59,18 +59,20 @@ void LayerFuncs::ChangeLayer(AcDbDatabase * db, wchar_t * base, wchar_t * des, b
 	wcsncpy(layer_trim, base, wcslen(base) - 1);
 	layer_trim[wcslen(base) - 1] = '\0';
 
-	AcDbLayerTableIterator* iter = NULL;
+	IteratorWrap<AcDbLayerTableIterator> iter_wrap;
 	{
+		AcDbLayerTableIterator* iter = NULL;
 		ObjectWrap<AcDbLayerTable> layer_tbl(GetLayerTable(db));
 		layer_tbl.object->newIterator(iter);
+		iter_wrap.pointer = iter;
 	}
-	while (!iter->done())
+	while (!iter_wrap.pointer->done())
 	{
 		AcDbLayerTableRecord* rcd = NULL;
-		if (iter->getRecord(rcd, AcDb::kForRead) == Acad::eOk)
+		if (iter_wrap.pointer->getRecord(rcd, AcDb::kForRead) == Acad::eOk)
 		{
 			ObjectWrap<AcDbLayerTableRecord> layer_wrap(rcd);
-			wchar_t* layer_name = (wchar_t*)L"";
+			wchar_t* layer_name = L"";
 			layer_wrap.object->getName(layer_name);
 			std::size_t length = std::wcslen(base);
 			wchar_t cmp_c = base[length - 1];
@@ -96,11 +98,10 @@ void LayerFuncs::ChangeLayer(AcDbDatabase * db, wchar_t * base, wchar_t * des, b
 				}
 			}
 		}
-		iter->step();
+		iter_wrap.pointer->step();
 	}
 
 	delete[] layer_trim;
-	delete iter;
 }
 
 void LayerFuncs::ChangeLayer(AcDbDatabase * db, AcDbObjectIdArray ids, const wchar_t * layer)
@@ -125,15 +126,17 @@ void LayerFuncs::DeleteLayer(AcDbDatabase * db, wchar_t * layer)
 	wcsncpy(layer_trim, layer, wcslen(layer) - 1);
 	layer_trim[wcslen(layer) - 1] = '\0';
 
-	AcDbLayerTableIterator* iter = NULL;
+	IteratorWrap<AcDbLayerTableIterator> iter_wrap;
 	{
+		AcDbLayerTableIterator* iter = NULL;
 		ObjectWrap<AcDbLayerTable> layer_tbl(GetLayerTable(db));
 		layer_tbl.object->newIterator(iter);
+		iter_wrap.pointer = iter;
 	}
-	while (!iter->done())
+	while (!iter_wrap.pointer->done())
 	{
 		AcDbLayerTableRecord* rcd = NULL;
-		if (iter->getRecord(rcd, AcDb::kForRead) == Acad::eOk)
+		if (iter_wrap.pointer->getRecord(rcd, AcDb::kForRead) == Acad::eOk)
 		{
 			ObjectWrap<AcDbLayerTableRecord> layer_wrap(rcd);
 			wchar_t* layer_name;
@@ -156,27 +159,29 @@ void LayerFuncs::DeleteLayer(AcDbDatabase * db, wchar_t * layer)
 				layer_wrap.object->erase();
 			}
 		}
-		iter->step();
+		iter_wrap.pointer->step();
 	}
 
 	delete[] layer_trim;
-	delete iter;
 }
 
 void LayerFuncs::DeleteLayerByRegex(AcDbDatabase * db, wchar_t * regex)
 {
-	AcDbLayerTableIterator* iter = NULL;
+	IteratorWrap<AcDbLayerTableIterator> iter_wrap;
 	{
+		AcDbLayerTableIterator* iter = NULL;
 		ObjectWrap<AcDbLayerTable> layer_tbl(GetLayerTable(db));
 		layer_tbl.object->newIterator(iter);
+		iter_wrap.pointer = iter;
 	}
-	while (!iter->done())
+
+	while (!iter_wrap.pointer->done())
 	{
 		AcDbLayerTableRecord* rcd = NULL;
-		if (Acad::eOk == iter->getRecord(rcd, AcDb::kForRead))
+		if (Acad::eOk == iter_wrap.pointer->getRecord(rcd, AcDb::kForRead))
 		{
 			ObjectWrap<AcDbLayerTableRecord> layer_wrap(rcd);
-			wchar_t* layer_name = (wchar_t*)L"";
+			wchar_t* layer_name = L"";
 			layer_wrap.object->getName(layer_name);
 
 			if (Functions::IsMatchRegex(regex, layer_name))
@@ -186,10 +191,8 @@ void LayerFuncs::DeleteLayerByRegex(AcDbDatabase * db, wchar_t * regex)
 				layer_wrap.object->erase();
 			}
 		}
-		iter->step();
+		iter_wrap.pointer->step();
 	}
-
-	delete iter;
 }
 
 void LayerFuncs::DeleteLayerFromFile(const wchar_t * file_name, const wchar_t * layer)
@@ -206,45 +209,47 @@ void LayerFuncs::DeleteLayerFromFile(const wchar_t * file_name, const wchar_t * 
 void LayerFuncs::EraseAllEntityOnLayer(AcDbDatabase * db, wchar_t * layer)
 {
 	Acad::ErrorStatus ret = Acad::eOk;
-	AcDbBlockTableRecordIterator *iter = NULL;
+	IteratorWrap<AcDbBlockTableRecordIterator> iter_wrap;
 	{
+		AcDbBlockTableRecordIterator *iter = NULL;
 		ObjectWrap<AcDbBlockTableRecord> model_space(DBObject::GetModelSpace(db));
 		model_space.object->newIterator(iter);
+		iter_wrap.pointer = iter;
 	}
 
-	while (!iter->done())
+	while (!iter_wrap.pointer->done())
 	{
-		ObjectWrap<AcDbEntity> ent_wrap(Functions::GetEntityInterTableRecord(iter));
+		ObjectWrap<AcDbEntity> ent_wrap(Functions::GetEntityInterTableRecord(iter_wrap.pointer));
 		if (ent_wrap.object != NULL && wcscmp(ent_wrap.object->layer(), layer) == 0)
 		{
 			ret = ent_wrap.object->upgradeOpen();
 			ret = ent_wrap.object->erase();
 		}
-		iter->step();
+		iter_wrap.pointer->step();
 	}
-	delete iter;
 }
 
 void LayerFuncs::MoveAllEntityOnLayer(AcDbDatabase * db, wchar_t * layer, wchar_t * des)
 {
 	Acad::ErrorStatus ret = Acad::eOk;
-	AcDbBlockTableRecordIterator *iter = NULL;
+	IteratorWrap<AcDbBlockTableRecordIterator> iter_wrap;
 	{
+		AcDbBlockTableRecordIterator *iter = NULL;
 		ObjectWrap<AcDbBlockTableRecord> model_space(DBObject::GetModelSpace(db));
 		model_space.object->newIterator(iter);
+		iter_wrap.pointer = iter;
 	}
 
-	while (!iter->done())
+	while (!iter_wrap.pointer->done())
 	{
-		ObjectWrap<AcDbEntity> ent_wrap(Functions::GetEntityInterTableRecord(iter));
+		ObjectWrap<AcDbEntity> ent_wrap(Functions::GetEntityInterTableRecord(iter_wrap.pointer));
 		if (ent_wrap.object != NULL && wcscmp(ent_wrap.object->layer(), layer) == 0)
 		{
 			ret = ent_wrap.object->upgradeOpen();
 			ret = ent_wrap.object->setLayer(des);
 		}
-		iter->step();
+		iter_wrap.pointer->step();
 	}
-	delete iter;
 }
 
 AcDbObjectId LayerFuncs::GetLayerId(AcDbDatabase * db, const wchar_t * layer)
@@ -267,23 +272,22 @@ AcDbObjectId LayerFuncs::GetLayerId(AcDbDatabase * db, const wchar_t * layer)
 AcDbObjectIdArray LayerFuncs::GetEntityBelongToLayer(AcDbDatabase * db, const wchar_t * layer_name)
 {
 	AcDbObjectIdArray ids;
+	IteratorWrap<AcDbBlockTableRecordIterator> iter_wrap;
 	{
 		AcDbBlockTableRecordIterator *iter = NULL;
-		{
-			ObjectWrap<AcDbBlockTableRecord> model_space = DBObject::GetModelSpace(db);
-			model_space.object->newIterator(iter);
-		}
+		ObjectWrap<AcDbBlockTableRecord> model_space = DBObject::GetModelSpace(db);
+		model_space.object->newIterator(iter);
+		iter_wrap.pointer = iter;
+	}
 
-		while (!iter->done())
+	while (!iter_wrap.pointer->done())
+	{
+		ObjectWrap<AcDbEntity> ent_wrap(Functions::GetEntityInterTableRecord(iter_wrap.pointer));
+		if (ent_wrap.object != NULL && wcscmp(ent_wrap.object->layer(), layer_name) == 0)
 		{
-			ObjectWrap<AcDbEntity> ent_wrap(Functions::GetEntityInterTableRecord(iter));
-			if (ent_wrap.object != NULL && wcscmp(ent_wrap.object->layer(), layer_name) == 0)
-			{
-				ids.append(ent_wrap.object->id());
-			}
-			iter->step();
+			ids.append(ent_wrap.object->id());
 		}
-		delete iter;
+		iter_wrap.pointer->step();
 	}
 	return ids;
 }
@@ -292,26 +296,36 @@ AcDbObjectIdArray LayerFuncs::GetPointsBelongToLayer(AcDbDatabase* db, const wch
 {
 	Acad::ErrorStatus ret = Acad::eOk;
 	AcDbObjectIdArray ids;
+
+	IteratorWrap<AcDbBlockTableRecordIterator> iter_wrap;
 	{
 		AcDbBlockTableRecordIterator *iter = NULL;
+		ObjectWrap<AcDbBlockTableRecord> btr_wrap(DBObject::GetBlkTblRcd(db, entry_name));
+		btr_wrap.object->newIterator(iter);
+		iter_wrap.pointer = iter;
+	}
 
+	while (!iter_wrap.pointer->done())
+	{
+		ObjectWrap<AcDbEntity> ent_wrap(Functions::GetEntityInterTableRecord(iter_wrap.pointer));
+		if (ent_wrap.object != NULL && ent_wrap.object->isKindOf(AcDbPoint::desc()))
 		{
-			ObjectWrap<AcDbBlockTableRecord> btr_wrap(DBObject::GetBlkTblRcd(db, entry_name));
-			btr_wrap.object->newIterator(iter);
+			AcDbPoint* point = AcDbPoint::cast(ent_wrap.object);
+			if (0 == wcscmp((wchar_t*)point->layer(), layer_name))
+				ids.append(point->objectId());
 		}
-
-		while (!iter->done())
-		{
-			ObjectWrap<AcDbEntity> ent_wrap(Functions::GetEntityInterTableRecord(iter));
-			if (ent_wrap.object != NULL && ent_wrap.object->isKindOf(AcDbPoint::desc()))
-			{
-				AcDbPoint* point = AcDbPoint::cast(ent_wrap.object);
-				if (0 == wcscmp((wchar_t*)point->layer(), layer_name))
-					ids.append(point->objectId());
-			}
-			iter->step();
-		}
-		delete iter;
+		iter_wrap.pointer->step();
 	}
 	return ids;
+}
+
+void LayerFuncs::AddLayer(const AcDbObjectId & id, const wchar_t * layer)
+{
+	ObjectWrap<AcDbEntity> ent(DBObject::OpenObjectById<AcDbEntity>(id));
+
+	if (NULL == ent.object)
+		return;
+	ent.object->upgradeOpen();
+	ent.object->setLayer(LayerFuncs::GetLayerId(acdbCurDwg(), layer));
+
 }

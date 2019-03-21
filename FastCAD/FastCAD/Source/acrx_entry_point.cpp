@@ -16,6 +16,8 @@
 #define COPY_BLK					L"CopyBlk"
 #define PASTE_BLK					L"PasteBlk"
 #define CONNECT_LINES				L"ConnectLines"
+#define CHANGE_BLK_NAME				L"ChangeBlkName"
+
 #define TEST						L"Test"
 
 std::wstring groupname = GROUPNAME;
@@ -25,6 +27,7 @@ std::wstring command_name[] = {
 	COPY_BLK,
 	PASTE_BLK,
 	CONNECT_LINES,
+	CHANGE_BLK_NAME,
 	TEST
 };
 
@@ -46,6 +49,8 @@ static AcRxFunctionPtr GetFuncs(std::wstring cmd)
 		return BlkRefFunc::PasteBlk;
 	if (0 == cmd.compare(CONNECT_LINES))
 		return EditCurve::ConnectLine;
+	if (0 == cmd.compare(CHANGE_BLK_NAME))
+		return BlkRefFunc::ChangeBlkName;
 	if (0 == cmd.compare(TEST))
 		return InstanceBalloon::Test;
 }

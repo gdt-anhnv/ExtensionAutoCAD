@@ -2,7 +2,6 @@
 #define _DB_OBJECT_H_
 
 #include "../acad_header.h"
-#include "../Wrap/acad_obj_wrap.h"
 
 class DBObject
 {
@@ -20,8 +19,14 @@ public:
 	static AcDbObjectId FindBlockByName(AcDbDatabase * db, const wchar_t * bn);
 	static AcDbObjectIdArray FindBlockRefsByName(AcDbDatabase* db, const wchar_t* name);
 
-	static AcDbDatabase *GetDataBase();
+	static ErrorStatus Erase(const AcDbObjectId & id);
+	static AcDbObjectId CopyEntity(const AcDbObjectId& id);
+	static AcDbObjectId AppendToModelSpace(AcDbEntity *);
+	static AcDbObjectIdArray GetNextEnts(const AcDbObjectId & id);
 
+	static AcDbObjectId GetObjIdFromHandle(const AcDbHandle&);
+	static AcString GetHandleStr(const AcDbHandle&);
+	static void CreatePickingName(const AcDbObjectIdArray& ids, ads_name& name);
 };
 
 template<class T>

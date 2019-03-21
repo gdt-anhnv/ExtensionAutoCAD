@@ -30,18 +30,20 @@ class AcDbObjectIdArray;
 class Functions
 {
 public:
+
+	static bool IsVisible(const AcDbObjectId & id);
 	static resbuf *AppendToResbuf(resbuf *head, // Head of list
 		resbuf *tail);  // New tail of list
 	static bool IsMatchRegex(wchar_t* regex, wchar_t* source);
 	static AcDbEntity* GetEntityInterTableRecord(AcDbBlockTableRecordIterator* iter);
 	static AcDbViewportTableRecord* GetActiveViewport(AcDbDatabase* db);
-	static AcDbObjectId GetTextStyleId(AcDbDatabase* db, std::wstring& ts);
+	static AcDbObjectId GetTextStyleId(AcDbDatabase* db, const wchar_t* ts);
 	static AcDbDimStyleTable* GetDimStyleTable(AcDbDatabase* db);
 	static AcDbDimStyleTableRecord* GetDimStyleTableRecord(AcDbDatabase* db, const wchar_t* entryName);
 	static AcDbExtents* GetBoundary(AcDbDatabase* db);
+	static AcDbExtents* GetBoundary(AcDbObjectIdArray ids);
 	static void GetBoundaryDrawing(const wchar_t* fp, double& width, double& height);
 	static AcDbObjectId BindingXref(AcDbDatabase* db, const wchar_t* source_data, const wchar_t* name, AcGePoint3d ins_pnt);
-	static void ExplodeBlockReference(AcDbDatabase* db, AcDbObjectId id, bool del_obj);
 	static AcDbObjectId CloneBlock(AcDbDatabase* db, const wchar_t* fn_in, const wchar_t* _blk_name);
 	static AcDbObjectIdArray GetDimsByXData(AcDbDatabase* db, const wchar_t* app_name);
 	static void ScaleModelSpace(AcDbDatabase* db, double val);
@@ -61,12 +63,11 @@ public:
 	static bool GetCentroidClosedPolyline(AcDbDatabase* db, const AcDbObjectId& id, AcGePoint2d& centroid);
 	static void RemoveAllPersistentReactors(const AcDbObjectId& id);
 	static AcDbObjectIdArray GetAllPersistentReactors(const AcDbObjectId& id);
-	static void RemoveBlkRef(AcDbDatabase* db, const wchar_t* br_name);
 	static void CreateBlkTblRcd(AcDbDatabase* db, const wchar_t* btr_name);
 	static AcGePoint3d GetAllignmentPoint(const AcDbObjectId& br_id, const wchar_t* att_name);
 	//datax function
 	static void GetIdsToAds(const std::list<AcDbObjectId> & ids, ads_name &ss);
-	static void ScaleBlockReference(const AcDbObjectId & id, const int & val);
+	static AcDbObjectId GetTextStyle(AcDbDatabase * db, const wchar_t* style);
 };
 
 #endif // !_ACAD_FUNCS_H_ 

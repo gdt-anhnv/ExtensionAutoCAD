@@ -8,6 +8,7 @@ struct ResBufWrap
 	resbuf* res_buf;
 	ResBufWrap(resbuf*);
 	~ResBufWrap();
+
 };
 
 #endif

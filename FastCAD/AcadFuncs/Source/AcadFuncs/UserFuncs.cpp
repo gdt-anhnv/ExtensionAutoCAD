@@ -31,6 +31,7 @@ AcDbObjectIdArray UserFuncs::GetIdsFromSelectionSet(const ads_name & an)
 
 AcDbObjectIdArray UserFuncs::UserGetEnts()
 {
+
 	AdsNameWrap ads_wrap;
 	// Get the current PICKFIRST or ask user for a selection
 	acedSSGet(NULL, NULL, NULL, NULL, ads_wrap.ads);
@@ -75,12 +76,36 @@ int UserFuncs::GetInt(std::wstring promp)
 		break;
 	case RTNONE:
 		// defaul table
-		throw int(1);
+		return int();
 		break;
 	case RTNORM:
 		return value;
 		break;
 	}
+}
+
+int UserFuncs::GetIntWithFilter(const std::wstring & promp, int filter_bit)
+{
+	int value = 0;
+	value = acedInitGet(filter_bit, NULL);
+	int rc = acedGetInt(promp.c_str(), &value);
+	switch (rc)
+	{
+	case RTCAN:
+		throw RTCAN;
+	case RTERROR:
+		acutPrintf(L"\nInvalid number!");
+		break;
+	case RTNONE:
+		// defaul table
+		return int();
+		break;
+	case RTNORM:
+		return value;
+		break;
+	}
+
+	return value;
 }
 
 AcGePoint3d UserFuncs::UserGetPoint(std::wstring prompt)
@@ -125,4 +150,68 @@ AcGePoint3d UserFuncs::UserGetPointByPoint(std::wstring prompt, const AcGePoint3
 	}
 	break;
 	}
+}
+
+int UserFuncs::GetOption(const std::wstring & title, const std::list<std::wstring>& options)
+{
+		std::list<std::wstring> rows = options;
+		if (rows.size() <= 0)
+			throw std::exception("Invalid Input!");
+
+
+			std::wstring init_name = L"";
+			for (std::list<std::wstring>::iterator it = rows.begin(); it != rows.end(); ++it)
+			{
+				init_name += *it;
+				std::list<std::wstring>::iterator next_it = it;
+				std::advance(next_it, 1);
+				if (next_it != rows.end())
+					init_name += L" ";
+			}
+
+			TCHAR kw[50];
+			acedInitGet(NULL, init_name.c_str());
+
+			std::wstring option = L"";
+			for (std::list<std::wstring>::iterator it = rows.begin(); it != rows.end(); ++it)
+			{
+				option += *it;
+
+				std::list<std::wstring>::iterator next_it = it;
+				std::advance(next_it, 1);
+				if (next_it != rows.end())
+					option += L"/";
+			}
+
+
+			std::wstring prompt = L"\n" + title + L": [" + option + L"]<" + *rows.begin() + L">: ";
+
+			int rc = acedGetKword(prompt.c_str(), kw);
+
+			switch (rc)
+			{
+			case RTCAN:
+				acutPrintf(L"\nUser canceled");
+				throw std::exception("User canceled");
+				break;
+
+			case RTERROR:
+				acutPrintf(L"\nInvalid selection!");
+				break;
+
+			case RTNONE:
+				return 0;
+				break;
+
+			case RTNORM:
+			{
+				for (std::list<std::wstring>::iterator it = rows.begin(); it != rows.end(); ++it)
+				{
+
+					if (0 == _tcscmp(kw, (*it).c_str()))
+						return std::distance(rows.begin(), it);
+				}
+			}break;
+			}
+			return -1;
 }

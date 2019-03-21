@@ -1,9 +1,11 @@
-#include "../acad_header.h"
 #include "ARXFuncs.h"
-#include "../AcadFuncs/DBObject.h"
-#include "../AcadFuncs/Geometry.h"
-#include "../AcadFuncs/AcadFuncs.h"
-
+#include "../wrap_header.h"
+#include "DBObject.h"
+#include "Geometry.h"
+#include "AcadFuncs.h"
+#include "acedCmdNF.h"
+#include "UserFuncs.h"
+#include "../constants.h"
 
 AcDbObjectIdArray ARXFuncs::GetEntsInsidePolyline(const AcDbObjectId & id)
 {
@@ -11,7 +13,7 @@ AcDbObjectIdArray ARXFuncs::GetEntsInsidePolyline(const AcDbObjectId & id)
 	AcGePoint3dArray pts = AcGePoint3dArray();
 
 	{
-		ObjectWrap<AcDbObject> obj_wrap(DBObject::OpenObjectById<AcDbObject>(id));
+		ObjectWrap<AcDbObject> obj_wrap(OpenObjectId<AcDbObject>(id));
 		if (obj_wrap.object->isKindOf(AcDbPolyline::desc()))
 		{
 			AcDbPolyline* pl = AcDbPolyline::cast(obj_wrap.object);
@@ -142,14 +144,32 @@ void ARXFuncs::ZoomIntoZoneExtent(const AcDbObjectId & id, int exten_val)
 	if (AcDbObjectId::kNull != id)
 	{
 		AcDbExtents ex = AcDbExtents();
-		ObjectWrap<AcDbObject> obj_w(DBObject::OpenObjectById<AcDbObject>(id));
-		ObjectWrap<AcDbEntity> ent_w(DBObject::OpenObjectById<AcDbEntity>(id));
+		ObjectWrap<AcDbObject> obj_w(OpenObjectId<AcDbObject>(id));
+		ObjectWrap<AcDbEntity> ent_w(OpenObjectId<AcDbEntity>(id));
 		ent_w.object->getGeomExtents(ex);
 		ConvertToAdsPoint(ex.minPoint() + AcGeVector3d(-500, -500, 0), p1);
 		ConvertToAdsPoint(ex.maxPoint() + AcGeVector3d(+500, +500, 0), p2);
 		if (RTNORM != acedCommandS(RTSTR, L"_ZOOM", RTSTR, L"W", RTPOINT, p1, RTPOINT, p2, RTNONE))
 			return;
 	}
+}
+
+AcDbObjectId ARXFuncs::GetObjectByPicking(wchar_t * prompt)
+{
+	AcDbObjectId id = AcDbObjectId::kNull;
+	AdsNameWrap anw;
+
+	wchar_t* pts[] = { prompt, L"" };
+
+	if (RTNORM != acedSSGet(L"_+.:S:$", pts, NULL, NULL, anw.ads))
+		return id;
+
+	ads_name tmp_ads;
+	if (RTNORM != acedSSName(anw.ads, 0L, tmp_ads))
+		return id;
+
+	acdbGetObjectId(id, tmp_ads);
+	return id;
 }
 
 
@@ -187,7 +207,7 @@ AcDbObjectIdArray ARXFuncs::GetObjIdsByPicking(wchar_t * prompt)
 	AcDbObjectIdArray ids = AcDbObjectIdArray();
 	AdsNameWrap anw;
 
-	wchar_t* pts[] = { prompt, (wchar_t*)L"" };
+	wchar_t* pts[] = { prompt, L"" };
 
 	if (RTNORM != acedSSGet(L"_+.:S:$", pts, NULL, NULL, anw.ads))
 		return ids;
@@ -219,8 +239,15 @@ AcDbObjectIdArray ARXFuncs::GetObjIdsInSelected(wchar_t* prompt)
 {
 	AcDbObjectIdArray ids = AcDbObjectIdArray();
 	AdsNameWrap anw;
-	wchar_t* pts[] = { prompt, (wchar_t*)L"" };
+	wchar_t* pts[] = { prompt, L"" };
 	int ret = acedSSGet(L":$", pts, NULL, NULL, anw.ads);
+
+	if (RTCAN == ret)
+	{
+		acutPrintf(L"\nRequest to end!");
+		return ids;
+	}
+
 	AcDbHandle hndl = AcDbHandle(anw.ads[0], anw.ads[1]);
 	if (!hndl.isNull())
 		Acad::ErrorStatus err = acedGetCurrentSelectionSet(ids);
@@ -334,6 +361,7 @@ void ARXFuncs::MergeIntoPolyline(const AcDbObjectIdArray & ids)
 		RTSTR, _T(""),
 		RTSTR, _T(""),
 		RTNONE);
+		acedSSFree(ads);
 }
 
 /*two point must belong polyline*/
@@ -345,7 +373,7 @@ AcGePoint3dArray ARXFuncs::GetVerticesBetweenTwoPoint(const AcDbObjectId & cable
 	if (AcDbObjectId::kNull != cable_id)
 	{
 		AcGePoint3dArray tmp_pnts = AcGePoint3dArray();
-		ObjectWrap<AcDbObject> pl_w(DBObject::OpenObjectById<AcDbObject>(cable_id));
+		ObjectWrap<AcDbObject> pl_w(OpenObjectId<AcDbObject>(cable_id));
 		if (NULL != pl_w.object && pl_w.object->isKindOf(AcDbPolyline::desc()))
 		{
 			AcDbPolyline * pl = AcDbPolyline::cast(pl_w.object);
@@ -498,7 +526,7 @@ void ARXFuncs::EraseObjects(AcDbObjectIdArray ids)
 	{
 		if (AcDbObjectId::kNull != ids.at(i))
 		{
-			ObjectWrap<AcDbEntity> ent_wrap(DBObject::OpenObjectById<AcDbEntity>(ids.at(i)));
+			ObjectWrap<AcDbEntity> ent_wrap(OpenObjectId<AcDbEntity>(ids.at(i)));
 			if ((NULL != ent_wrap.object) && (!ent_wrap.object->isErased()))
 			{
 				err = ent_wrap.object->upgradeOpen();
@@ -507,3 +535,39 @@ void ARXFuncs::EraseObjects(AcDbObjectIdArray ids)
 		}
 	}
 }
+
+AcDbPolyline* ARXFuncs::CreatePolylineByPicking()
+{
+	AcDbPolyline* pline = new AcDbPolyline();
+
+	int i = 1;
+
+	AcGePoint3d pnt = AcGePoint3d::kOrigin;
+	while (true)
+	{
+		std::wstring prompt = L"Pick point or press ESC to Finish: \n";
+		//prompt.append(EnGeneralFuncs::ConvertIntToWstring(i));
+		try
+		{
+			if (1 == i)
+				pnt = UserFuncs::UserGetPoint(prompt);
+			else
+				pnt = UserFuncs::UserGetPointByPoint(prompt, pnt);
+		}
+		catch (int tmp)
+		{
+			if (tmp == RTCAN)
+				break;
+		}
+
+		pline->addVertexAt(0, AcGePoint2d(pnt.x, pnt.y));
+
+		i++;
+	}
+
+	if (i < 3)
+		return NULL;
+
+	return pline;
+}
+

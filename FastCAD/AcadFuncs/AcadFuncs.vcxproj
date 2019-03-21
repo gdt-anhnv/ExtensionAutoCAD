@@ -218,7 +218,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_ARX|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(OBJECTARX_2017)\inc;$(OBJECTARX_2017)\inc-x64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OBJECTARX_2018)\inc;$(OBJECTARX_2018)\inc-x64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_AFXEXT;_USING_ARX_;UNICODE;_AFXDLL</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ProgramDataBaseFileName>$(PTFASTER_BUILD)\$(ProjectName).pdb</ProgramDataBaseFileName>
@@ -226,8 +226,8 @@
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>accore.lib;acad.lib;acui21.lib;adui21.lib;ac1st21.lib;acdb21.lib;acge21.lib;acgiapi.lib;acISMobj21.lib;rxapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OBJECTARX_2017)\lib-x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>accore.lib;acad.lib;acui22.lib;adui22.lib;ac1st22.lib;acdb22.lib;acge22.lib;acgiapi.lib;acISMobj22.lib;rxapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OBJECTARX_2018)\lib-x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Windows</SubSystem>
     </Lib>
   </ItemDefinitionGroup>
@@ -260,10 +260,13 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Source\AcadFuncs.h" />
     <ClInclude Include="Source\AcadFuncs\AcadFuncs.h" />
     <ClInclude Include="Source\AcadFuncs\ARXFuncs.h" />
     <ClInclude Include="Source\AcadFuncs\AttributeFuncs.h" />
+    <ClInclude Include="Source\AcadFuncs\BlockReferenceFuncs.h" />
     <ClInclude Include="Source\AcadFuncs\DBObject.h" />
+    <ClInclude Include="Source\AcadFuncs\dictionary_funcs.h" />
     <ClInclude Include="Source\AcadFuncs\Geometry.h" />
     <ClInclude Include="Source\AcadFuncs\LayerFuncs.h" />
     <ClInclude Include="Source\AcadFuncs\UserFuncs.h" />
@@ -281,7 +284,9 @@
     <ClCompile Include="Source\AcadFuncs\AcadFuncs.cpp" />
     <ClCompile Include="Source\AcadFuncs\ARXFuncs.cpp" />
     <ClCompile Include="Source\AcadFuncs\AttributeFuncs.cpp" />
+    <ClCompile Include="Source\AcadFuncs\BlockReferenceFuncs.cpp" />
     <ClCompile Include="Source\AcadFuncs\DBObject.cpp" />
+    <ClCompile Include="Source\AcadFuncs\dictionary_funcs.cpp" />
     <ClCompile Include="Source\AcadFuncs\Geometry.cpp" />
     <ClCompile Include="Source\AcadFuncs\LayerFuncs.cpp" />
     <ClCompile Include="Source\AcadFuncs\UserFuncs.cpp" />

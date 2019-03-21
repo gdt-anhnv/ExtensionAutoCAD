@@ -1,4 +1,4 @@
-#include "../stdafx.h"
+﻿#include "../stdafx.h"
 #include "blk_ref_func.h"
 #include "../../AcadFuncs/Source/acad_funcs_header.h"
 #include "../../AcadFuncs/Source/Wrap/acad_obj_wrap.h"
@@ -297,4 +297,29 @@ void BlkRefFunc::ChangeBlkBase()
 		}
 	}
 	catch(...) {}
+}
+
+void BlkRefFunc::ChangeBlkName()
+{
+	try
+	{
+		AcDbObjectIdArray ids = ARXFuncs::GetObjIdsByPicking(L"Chọn block:");
+		if (0 == ids.length())
+			return;
+
+		{
+			ObjectWrap<AcDbBlockReference> br_wrap(DBObject::OpenObjectById<AcDbBlockReference>(ids[0]));
+			if (NULL == br_wrap.object)
+				return;
+		}
+
+		std::wstring blk_name = BlockReferenceFuncs::GetBlkRefName(ids[0]);
+		wchar_t* nbn = new wchar_t[200];
+
+		if (RTNORM != acedGetString(0, L"Đổi tên block:", nbn, 200))
+			return;
+
+		delete[] nbn;
+	}
+	catch (...) {}
 }

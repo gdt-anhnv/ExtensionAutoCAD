@@ -75,6 +75,15 @@
     <ClInclude Include="Source\Wrap\iterator_wrap.h">
       <Filter>Header Files\Wrap</Filter>
     </ClInclude>
+    <ClInclude Include="Source\AcadFuncs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\AcadFuncs\BlockReferenceFuncs.h">
+      <Filter>Header Files\AcadFuncs</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\AcadFuncs\dictionary_funcs.h">
+      <Filter>Header Files\AcadFuncs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\AcadFuncs\AcadFuncs.cpp">
@@ -105,6 +114,12 @@
       <Filter>Source Files\AcadFuncs</Filter>
     </ClCompile>
     <ClCompile Include="Source\AcadFuncs\UserFuncs.cpp">
+      <Filter>Source Files\AcadFuncs</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\AcadFuncs\BlockReferenceFuncs.cpp">
+      <Filter>Source Files\AcadFuncs</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\AcadFuncs\dictionary_funcs.cpp">
       <Filter>Source Files\AcadFuncs</Filter>
     </ClCompile>
   </ItemGroup>

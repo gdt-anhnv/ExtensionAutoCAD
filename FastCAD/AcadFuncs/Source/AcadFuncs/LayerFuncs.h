@@ -17,9 +17,10 @@ public:
 	static void EraseAllEntityOnLayer(AcDbDatabase* db, wchar_t* layer);
 	static void MoveAllEntityOnLayer(AcDbDatabase* db, wchar_t* layer, wchar_t* des);
 	static AcDbObjectId GetLayerId(AcDbDatabase* db, const wchar_t* layer);
-
 	static AcDbObjectIdArray GetEntityBelongToLayer(AcDbDatabase* db, const wchar_t* layer_name);
-	static AcDbObjectIdArray GetPointsBelongToLayer(AcDbDatabase* db, const wchar_t* entry_name, const wchar_t* layer_name);
+	static AcDbObjectIdArray GetPointsBelongToLayer(AcDbDatabase* db,
+		const wchar_t* entry_name, const wchar_t* layer_name);
+	static void AddLayer(const AcDbObjectId & id, const wchar_t* layer);
 };
 
 

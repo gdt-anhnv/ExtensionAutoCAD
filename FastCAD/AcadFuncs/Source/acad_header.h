@@ -1,6 +1,6 @@
+//only using for arx
+#ifdef _USING_ARX_
 
-/*****************************************************/
-//only for objectarx 2018 and back then
 // ObjectARX Includes
 #ifndef VC_EXTRALEAN
 #define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
@@ -40,26 +40,30 @@
 #include <afxcmn.h>                     // MFC support for Windows Common Controls
 #endif // _AFX_NO_AFXCMN_SUPPORT
 
-/***********************************************************************************/
+
+#ifdef _DEBUG_WAS_DEFINED
+#define _DEBUG
+#undef _DEBUG_WAS_DEFINED
+#endif
 
 #include "rxregsvc.h"
 #include "acutads.h"
 #include "dbmain.h"
-//#include "dbxHeaders.h"
-//#include "AcExtensionModule.h"
+#include "dbxHeaders.h"
+#include "AcExtensionModule.h"
 #include "aced.h"
 #include "dbents.h"
 #include "dbJoinEntityPE.h"
-#include "dbdynblk.h"
-#include "dbregion.h"
-#include "geplin3d.h"
-#include "geassign.h"
-#include "dbapserv.h"
-#include "dbidmap.h"
-#include "adscodes.h"
-#include "acedCmdNF.h"
 
 #include <iostream>
 #include <string>
-#include <tchar.h>
-#include <Windows.h>
+
+#endif
+
+
+//build for both arx and dbx
+//#include "dbmain.h"
+//#include "dbsymtb.h"
+//#include "dbents.h"
+//#include "dbidar.h"
+//#include "dbidmap.h"

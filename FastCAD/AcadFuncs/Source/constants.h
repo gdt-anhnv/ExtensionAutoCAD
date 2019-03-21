@@ -1,10 +1,10 @@
 #ifndef _ACAD_FUNS_CONSTANTS_H_
 #define _ACAD_FUNS_CONSTANTS_H_
 
-#include <iostream>
-#include <string>
-#include <tchar.h>
-
-const wchar_t* ACTIVE_VIEWPORT = L"*Active";
+wchar_t* const ACTIVE_VIEWPORT = L"*Active";
+#define WrapBlkTblRcd				ObjectWrap<AcDbBlockTableRecord>
+#define OpenObjectId				DBObject::OpenObjectById
+#define OpenBlkRef					DBObject::OpenObjectById<AcDbBlockReference>
+#define OpenBlkTblRcd				DBObject::OpenObjectById<AcDbBlockTableRecord>
 
 #endif

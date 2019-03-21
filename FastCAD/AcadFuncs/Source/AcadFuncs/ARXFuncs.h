@@ -12,6 +12,9 @@ public:
 	static AcDbObjectIdArray GetEntsInsidePolyline2(const AcDbObjectId & id);
 	static void ZoomIntoZone(const AcDbObjectId & id);
 	static void ZoomIntoZoneExtent(const AcDbObjectId & id, int exten_val);
+
+	static AcDbObjectId GetObjectByPicking(wchar_t* prompt);
+
 	static AcDbObjectIdArray GeLastCreatedObjId();
 	static AcDbObjectIdArray GetObjIdsByPicking();
 	static AcDbObjectIdArray GetObjIdsByPicking(wchar_t* prompt);
@@ -20,12 +23,18 @@ public:
 	static AcDbObjectIdArray GetObjIdsInWindow(const AcGePoint3d& pnt1, const AcGePoint3d& pnt2);
 	static void ConvertToAdsPoint(AcGePoint3d pnt, ads_point);
 	static AcGePoint3d ConvertAdsToPoint(const ads_point);
+
 	static AcGePoint3d GetMinPerpendicularPoint(AcDbPolyline * pl, AcGePoint3d check_pnt);
+
 	static void MergeIntoPolyline(const AcDbObjectIdArray& ids);
 	static AcGePoint3dArray GetVerticesBetweenTwoPoint(const AcDbObjectId& pl_id, const AcGePoint3d& pnt_1, const AcGePoint3d & pnt_2);
+	
 	static void DrawOrderFront(AcDbObjectIdArray ids);
 	static void DrawOrderBot(AcDbObjectIdArray ids);
 	static void EraseObjects(AcDbObjectIdArray ids);
+
+	static AcDbPolyline* CreatePolylineByPicking();
+
 
 #endif
 };

@@ -19,6 +19,30 @@
 
 
 
+bool Functions::IsVisible(const AcDbObjectId & id)
+{
+	ObjectWrap<AcDbLayerTableRecord> ltr_wrap(OpenObjectId<AcDbLayerTableRecord>(id));
+
+	if (NULL != ltr_wrap.object)
+		return !ltr_wrap.object->isHidden();
+
+	ObjectWrap<AcDbEntity> ent_wrap(OpenObjectId<AcDbEntity>(id));
+	if (NULL != ent_wrap.object)
+	{
+		if (AcDb::kInvisible == ent_wrap.object->visibility())
+			return false;
+
+		ObjectWrap<AcDbLayerTableRecord> layer_wrap(OpenObjectId<AcDbLayerTableRecord>(ent_wrap.object->layerId()));
+
+
+		if (NULL != layer_wrap.object)
+		{
+			return !layer_wrap.object->isOff();
+		}
+	}
+	return false;
+}
+
 resbuf * Functions::AppendToResbuf(resbuf * head, resbuf * tail)
 {
 	if (head == NULL) return tail;
@@ -53,11 +77,9 @@ bool Functions::IsMatchRegex(wchar_t * regex, wchar_t * source)
 
 AcDbEntity * Functions::GetEntityInterTableRecord(AcDbBlockTableRecordIterator * iter)
 {
-	{
-		AcDbEntity* ent = NULL;
-		iter->getEntity(ent, AcDb::kForRead);
-		return ent;
-	}
+	AcDbEntity* ent = NULL;
+	iter->getEntity(ent, AcDb::kForRead);
+	return ent;
 }
 
 
@@ -73,13 +95,13 @@ AcDbViewportTableRecord * Functions::GetActiveViewport(AcDbDatabase * db)
 }
 
 
-AcDbObjectId Functions::GetTextStyleId(AcDbDatabase * db, std::wstring & ts)
+AcDbObjectId Functions::GetTextStyleId(AcDbDatabase * db, const wchar_t* ts)
 {
 	AcDbTextStyleTable *txt_sty_tbl = NULL;
 	db->getSymbolTable(txt_sty_tbl, AcDb::kForRead);
 
 	AcDbObjectId _id = AcDbObjectId::kNull;
-	txt_sty_tbl->getAt(ts.c_str(), _id);
+	txt_sty_tbl->getAt(ts, _id);
 	txt_sty_tbl->close();
 
 	return _id;
@@ -107,7 +129,7 @@ AcDbExtents* Functions::GetBoundary(AcDbDatabase* db)
 {
 	AcDbExtents* ext = new AcDbExtents;
 
-	ObjectWrap<AcDbBlockTableRecord> btr_wrap(DBObject::GetModelSpace(db));
+	WrapBlkTblRcd btr_wrap(DBObject::GetModelSpace(db));
 	AcDbBlockTableRecordIterator *blk_tbl_rcd_iter = NULL;
 	if (Acad::eOk == btr_wrap.object->newIterator(blk_tbl_rcd_iter))
 	{
@@ -131,6 +153,26 @@ AcDbExtents* Functions::GetBoundary(AcDbDatabase* db)
 			blk_tbl_rcd_iter->step();
 		}
 		delete blk_tbl_rcd_iter;
+	}
+
+	return ext;
+}
+
+AcDbExtents * Functions::GetBoundary(AcDbObjectIdArray ids)
+{
+	AcDbExtents* ext = new AcDbExtents;
+
+	for (int i = 0; i < ids.length(); i++)
+	{
+		ObjectWrap<AcDbEntity> ent(DBObject::OpenObjectById<AcDbEntity>(ids[i]));
+		if (NULL == ent.object)
+			continue;
+
+		AcDbExtents tmp = AcDbExtents();
+		if (Acad::eOk != ent.object->getGeomExtents(tmp))
+			continue;
+
+		ext->addExt(tmp);
 	}
 
 	return ext;
@@ -169,7 +211,7 @@ AcDbObjectId Functions::BindingXref(AcDbDatabase * db, const wchar_t * source_da
 
 	AcDbBlockReference* br = new AcDbBlockReference(ins_pnt, obj_id);
 	{
-		ObjectWrap<AcDbBlockTableRecord> blk_tbl_rcd_wrap(DBObject::GetModelSpace(db));
+		WrapBlkTblRcd blk_tbl_rcd_wrap(DBObject::GetModelSpace(db));
 		AcDbObjectId newEntId = AcDbObjectId::kNull;
 		blk_tbl_rcd_wrap.object->upgradeOpen();
 		blk_tbl_rcd_wrap.object->appendAcDbEntity(newEntId, br);
@@ -183,37 +225,7 @@ AcDbObjectId Functions::BindingXref(AcDbDatabase * db, const wchar_t * source_da
 	return br->id();
 }
 
-void Functions::ExplodeBlockReference(AcDbDatabase * db, AcDbObjectId id, bool del_obj)
-{
-	ObjectWrap<AcDbObject> obj_wrap(DBObject::OpenObjectById<AcDbObject>(id));
-	if (NULL != obj_wrap.object)
-	{
-		if (obj_wrap.object->isKindOf(AcDbBlockReference::desc()))
-		{
-			AcDbBlockReference* br = AcDbBlockReference::cast(obj_wrap.object);
-			AcDbVoidPtrArray ents(1);
-			Acad::ErrorStatus err = br->explode(ents);
 
-			ObjectWrap<AcDbBlockTableRecord> ms_wrap(DBObject::GetModelSpace(db));
-			ms_wrap.object->upgradeOpen();
-			AcDbObjectId ins_id = AcDbObjectId::kNull;
-			for (int i = 0; i < ents.length(); i++)
-			{
-				AcDbEntity* sub_ent = AcDbEntity::cast((AcRxObject*)ents[i]);
-				if (NULL != sub_ent)
-					err = ms_wrap.object->appendAcDbEntity(
-						ins_id, ObjectWrap<AcDbEntity>(sub_ent).object);
-			}
-		}
-
-		if (del_obj)
-		{
-			obj_wrap.object->upgradeOpen();
-			obj_wrap.object->erase();
-		}
-	}
-
-}
 
 
 void Functions::UpdateDimForBlock(AcDbDatabase * db, const wchar_t* blk_name)
@@ -254,16 +266,18 @@ void Functions::UpdateDimForBlock(AcDbDatabase * db, const wchar_t* blk_name)
 bool Functions::CheckExistedDimByText(AcDbDatabase * db, const wchar_t * text)
 {
 	Acad::ErrorStatus ret = Acad::eOk;
-	AcDbBlockTableRecordIterator* iter = NULL;
+	IteratorWrap<AcDbBlockTableRecordIterator> iter_wrap;
 	{
-		ObjectWrap<AcDbBlockTableRecord> rcd(DBObject::GetModelSpace(db));
+		AcDbBlockTableRecordIterator* iter = NULL;
+		WrapBlkTblRcd rcd(DBObject::GetModelSpace(db));
 		rcd.object->newIterator(iter);
+		iter_wrap.pointer = iter;
 	}
 
-	while (!iter->done())
+	while (!iter_wrap.pointer->done())
 	{
 		AcDbEntity* ent = NULL;
-		if (iter->getEntity(ent, AcDb::kForRead) == Acad::eOk)
+		if (iter_wrap.pointer->getEntity(ent, AcDb::kForRead) == Acad::eOk)
 		{
 			ObjectWrap<AcDbEntity> ent_wrap(ent);
 			if (ent != NULL && ent->isKindOf(AcDbDimension::desc()))
@@ -272,30 +286,30 @@ bool Functions::CheckExistedDimByText(AcDbDatabase * db, const wchar_t * text)
 				wchar_t* dim_text = dim->dimensionText();
 				if (IsMatchRegex((wchar_t*)text, dim_text))
 				{
-					delete iter;
 					return true;
 				}
 			}
 		}
-		iter->step();
+		iter_wrap.pointer->step();
 	}
 
-	delete iter;
 	return false;
 }
 
 void Functions::DeleteDimByTextOverride(AcDbDatabase * db, const wchar_t * text)
 {
-	AcDbBlockTableRecordIterator* iter = NULL;
+	IteratorWrap<AcDbBlockTableRecordIterator> iter_wrap;
 	{
-		ObjectWrap<AcDbBlockTableRecord> rcd(DBObject::GetModelSpace(db));
+		AcDbBlockTableRecordIterator* iter = NULL;
+		WrapBlkTblRcd rcd(DBObject::GetModelSpace(db));
 		rcd.object->newIterator(iter);
+		iter_wrap.pointer = iter;
 	}
 
-	while (!iter->done())
+	while (!iter_wrap.pointer->done())
 	{
 		AcDbEntity* ent = NULL;
-		if (iter->getEntity(ent, AcDb::kForRead) == Acad::eOk)
+		if (iter_wrap.pointer->getEntity(ent, AcDb::kForRead) == Acad::eOk)
 		{
 			ObjectWrap<AcDbEntity> ent_wrap(ent);
 			if (ent != NULL && ent->isKindOf(AcDbDimension::desc()))
@@ -309,13 +323,9 @@ void Functions::DeleteDimByTextOverride(AcDbDatabase * db, const wchar_t * text)
 				}
 			}
 		}
-		iter->step();
+		iter_wrap.pointer->step();
 	}
-	delete iter;
 }
-
-
-
 
 AcDbObjectId Functions::GetDimStyleByName(AcDbDatabase * db, const wchar_t * name)
 {
@@ -352,7 +362,8 @@ AcDbLinetypeTableRecord* Functions::GetLineType(AcDbDatabase * db, const wchar_t
 
 const AcDbEvalVariant Functions::GetDynBlkValue(const AcDbObjectId& br_id, const wchar_t * name)
 {
-	AcDbBlockReference* blk_ref = DBObject::OpenObjectById<AcDbBlockReference>(br_id); 
+	AcDbBlockReference* blk_ref = OpenBlkRef(br_id); 
+	ObjectWrap<AcDbBlockReference> blk_ref_wrap(blk_ref);
 	if(NULL == blk_ref)
 		return AcDbEvalVariant();
 
@@ -367,7 +378,12 @@ const AcDbEvalVariant Functions::GetDynBlkValue(const AcDbObjectId& br_id, const
 	for (int i = 0; i < props.length(); i++)
 	{
 		if (props.at(i).propertyName() == AcString(name))
-			return props.at(i).value();
+		{
+			delete dbr;
+
+			AcDbEvalVariant val = props.at(i).value();
+			return val;
+		}
 	}
 
 	delete dbr;
@@ -377,7 +393,8 @@ const AcDbEvalVariant Functions::GetDynBlkValue(const AcDbObjectId& br_id, const
 bool Functions::DynBlkHas(AcDbObjectId& br_id, const wchar_t * name)
 {
 
-	AcDbBlockReference* blk_ref = DBObject::OpenObjectById<AcDbBlockReference>(br_id);
+	AcDbBlockReference* blk_ref = OpenBlkRef(br_id);
+	ObjectWrap<AcDbBlockReference> blk_ref_wrap(blk_ref);
 	if (NULL == blk_ref)
 		return false;
 
@@ -396,35 +413,6 @@ bool Functions::DynBlkHas(AcDbObjectId& br_id, const wchar_t * name)
 
 	return false;
 }
-
-void Functions::SetDoubleDynBlk(const AcDbObjectId & br_id, const wchar_t * name, double val)
-{
-	AcDbBlockReference* blk_ref = DBObject::OpenObjectById<AcDbBlockReference>(br_id);
-	ObjectWrap<AcDbBlockReference> blk_ref_wrap(blk_ref);
-	if (NULL == blk_ref)
-		return;
-
-
-	AcDbDynBlockReference* dbr(new AcDbDynBlockReference(blk_ref));
-
-	AcDbDynBlockReferencePropertyArray props = AcDbDynBlockReferencePropertyArray();
-	if (!dbr->isDynamicBlock())
-		return;
-
-	dbr->getBlockProperties(props);
-	for (int i = 0; i < props.length(); i++)
-	{
-		if (props.at(i).propertyName() == AcString(name))
-		{
-			AcDbDynBlockReferenceProperty prop = props.at(i);
-			AcDbEvalVariant prop_val = AcDbEvalVariant(val);
-			Acad::ErrorStatus err = prop.setValue(prop_val);
-			return;
-		}
-	}
-}
-
-
 
 AcDbRegAppTable * Functions::GetRegAppTbl(AcDbDatabase * db)
 {
@@ -461,7 +449,7 @@ bool Functions::GetCentroidClosedPolyline(AcDbDatabase* db, const AcDbObjectId &
 	//AcDbObjectId reg_id = AcDbObjectId::kNull;
 	AcDbRegion* reg = new AcDbRegion();
 	{
-		AcDbPolyline* pl = DBObject::OpenObjectById<AcDbPolyline>(id);
+		AcDbPolyline* pl = OpenObjectId<AcDbPolyline>(id);
 		ObjectWrap<AcDbPolyline> pl_wrap(pl);
 		if (NULL == pl)
 			return false;
@@ -508,7 +496,7 @@ bool Functions::GetCentroidClosedPolyline(AcDbDatabase* db, const AcDbObjectId &
 
 void Functions::RemoveAllPersistentReactors(const AcDbObjectId & id)
 {
-	ObjectWrap<AcDbEntity> ent_wrap(DBObject::OpenObjectById<AcDbEntity>(id));
+	ObjectWrap<AcDbEntity> ent_wrap(OpenObjectId<AcDbEntity>(id));
 	if (NULL != ent_wrap.object)
 	{
 		ent_wrap.object->upgradeOpen();
@@ -529,7 +517,7 @@ void Functions::RemoveAllPersistentReactors(const AcDbObjectId & id)
 AcDbObjectIdArray Functions::GetAllPersistentReactors(const AcDbObjectId & id)
 {
 	AcDbObjectIdArray ret_ids = AcDbObjectIdArray();
-	ObjectWrap<AcDbEntity> ent_wrap(DBObject::OpenObjectById<AcDbEntity>(id));
+	ObjectWrap<AcDbEntity> ent_wrap(OpenObjectId<AcDbEntity>(id));
 	if (NULL != ent_wrap.object)
 	{
 		ent_wrap.object->upgradeOpen();
@@ -548,27 +536,13 @@ AcDbObjectIdArray Functions::GetAllPersistentReactors(const AcDbObjectId & id)
 }
 
 
-void Functions::RemoveBlkRef(AcDbDatabase * db, const wchar_t * br_name)
-{
-	AcDbObjectId br_id = DBObject::FindBlockByName(db, br_name);
-	if (AcDbObjectId::kNull == br_id)
-		return;
-
-	ObjectWrap<AcDbObject> obj_wrap(DBObject::OpenObjectById<AcDbObject>(br_id));
-	if (NULL == obj_wrap.object)
-		return;
-
-	obj_wrap.object->upgradeOpen();
-	obj_wrap.object->erase();
-}
-
 void Functions::CreateBlkTblRcd(AcDbDatabase * db, const wchar_t * btr_name)
 {
 	ObjectWrap<AcDbBlockTable> blk_tbl_wrap(DBObject::GetBlockTable(db));
 
 	blk_tbl_wrap.object->upgradeOpen();
 
-	ObjectWrap<AcDbBlockTableRecord> blk_tbl_rcd_wrap(new AcDbBlockTableRecord());
+	WrapBlkTblRcd blk_tbl_rcd_wrap(new AcDbBlockTableRecord());
 	blk_tbl_rcd_wrap.object->setName(btr_name);
 
 	if (Acad::eOk != blk_tbl_wrap.object->add(blk_tbl_rcd_wrap.object))
@@ -584,7 +558,7 @@ AcGePoint3d Functions::GetAllignmentPoint(const AcDbObjectId & br_id, const wcha
 	AcDbObjectId att_id = AttributeFuncs::GetAttributeByName(br_id, att_name);
 	if (att_id.isNull())
 		return AcGePoint3d::kOrigin;
-	ObjectWrap<AcDbObject> obj_wrap(DBObject::OpenObjectById<AcDbObject>(att_id));
+	ObjectWrap<AcDbObject> obj_wrap(OpenObjectId<AcDbObject>(att_id));
 	if (obj_wrap.object == NULL)
 		return AcGePoint3d::kOrigin;
 	if (!obj_wrap.object->isKindOf(AcDbAttribute::desc()))
@@ -605,19 +579,46 @@ void Functions::GetIdsToAds(const std::list<AcDbObjectId>& ids, ads_name & ss)
 	}
 	return;
 }
-
-void Functions::ScaleBlockReference(const AcDbObjectId & id, const int & val)
+static AcDbTextStyleTable * GetTextStyleTable(AcDbDatabase * db)
 {
-	ObjectWrap<AcDbBlockReference> br_wrap(DBObject::OpenObjectById<AcDbBlockReference>(id));
-	if (NULL == br_wrap.object)
-		return;
-	br_wrap.object->upgradeOpen();
-
-	AcGeMatrix3d trans = br_wrap.object->blockTransform();
-	trans.setToScaling(val, br_wrap.object->position());
-	br_wrap.object->transformBy(trans);
+	Acad::ErrorStatus ret = Acad::eOk;
+	AcDbTextStyleTable* style_tbl = NULL;
+	ret = db->getTextStyleTable(style_tbl, AcDb::kForRead);
+	return style_tbl;
 }
 
+AcDbObjectId Functions::GetTextStyle(AcDbDatabase * db, const wchar_t* style)
+{
+	AcDbObjectId result = AcDbObjectId::kNull;
+	Acad::ErrorStatus ret = Acad::eOk;
+
+	IteratorWrap<AcDbTextStyleTableIterator> iter_wrap;
+	{
+		AcDbTextStyleTableIterator* iter = NULL;
+		ObjectWrap<AcDbTextStyleTable> style_table(GetTextStyleTable(db));
+		style_table.object->newIterator(iter);
+		iter_wrap.pointer = iter;
+	}
+
+	while (!iter_wrap.pointer->done())
+	{
+		AcDbTextStyleTableRecord* rcd = NULL;
+		if (iter_wrap.pointer->getRecord(rcd, AcDb::kForRead) == Acad::eOk)
+		{
+			ObjectWrap<AcDbTextStyleTableRecord> style_wrap(rcd);
+			wchar_t* style_name;
+			style_wrap.object->getName(style_name);
+			
+			if (0 == std::wcscmp(style, style_name))
+			{
+				result = style_wrap.object->id();
+				break;
+			}
+		}
+		iter_wrap.pointer->step();
+	}
+	return result;
+}
 
 
 AcDbObjectId Functions::CloneBlock(AcDbDatabase* master, const wchar_t* fn_in, const wchar_t* _blk_name)
@@ -651,7 +652,7 @@ AcDbObjectId Functions::CloneBlock(AcDbDatabase* master, const wchar_t* fn_in, c
 	AcDbObjectId new_blk_id = DBObject::FindBlockByName(master, _blk_name);
 	{
 		ObjectWrap<AcDbBlockReference> br_wrap(new AcDbBlockReference(AcGePoint3d(0.0, 0.0, 0.0), new_blk_id));
-		ObjectWrap<AcDbBlockTableRecord> blk_tbl_rcd_wrap(DBObject::GetModelSpace(master));
+		WrapBlkTblRcd blk_tbl_rcd_wrap(DBObject::GetModelSpace(master));
 		blk_tbl_rcd_wrap.object->upgradeOpen();
 		if (Acad::eOk != blk_tbl_rcd_wrap.object->appendAcDbEntity(br_id, br_wrap.object))
 		{
@@ -670,7 +671,7 @@ AcDbObjectId Functions::CloneBlock(AcDbDatabase* master, const wchar_t* fn_in, c
 AcDbObjectIdArray Functions::GetDimsByXData(AcDbDatabase * db, const wchar_t * app_name)
 {
 	AcDbObjectIdArray ids;
-	ObjectWrap<AcDbBlockTableRecord> model_space(DBObject::GetModelSpace(db));
+	WrapBlkTblRcd model_space(DBObject::GetModelSpace(db));
 
 	AcDbBlockTableRecordIterator *blk_tbl_rcd_iter = NULL;
 	model_space.object->newIterator(blk_tbl_rcd_iter);
@@ -692,7 +693,7 @@ void Functions::ScaleModelSpace(AcDbDatabase * db, double val)
 {
 	AcDbBlockTableRecordIterator *blk_tbl_rcd_iter = NULL;
 	{
-		ObjectWrap<AcDbBlockTableRecord> btr_wrap(DBObject::GetModelSpace(db));
+		WrapBlkTblRcd btr_wrap(DBObject::GetModelSpace(db));
 		// Set up a block table record iterator to iterate over the attribute definitions.
 		btr_wrap.object->newIterator(blk_tbl_rcd_iter);
 	}
@@ -712,7 +713,7 @@ void Functions::ScaleModelSpace(AcDbDatabase * db, double val)
 
 double Functions::GetDimLength(AcDbObjectId id)
 {
-	ObjectWrap<AcDbObject> dim_obj(DBObject::OpenObjectById<AcDbObject>(id));
+	ObjectWrap<AcDbObject> dim_obj(OpenObjectId<AcDbObject>(id));
 
 	if (NULL != dim_obj.object && dim_obj.object->isKindOf(AcDbDimension::desc()))
 	{
@@ -727,7 +728,7 @@ double Functions::GetDimLength(AcDbObjectId id)
 void Functions::EraserDimOnLayer(AcDbDatabase * db, const wchar_t * layer)
 {
 	Acad::ErrorStatus ret = Acad::eOk;
-	ObjectWrap<AcDbBlockTableRecord> rcd(DBObject::GetModelSpace(db));
+	WrapBlkTblRcd rcd(DBObject::GetModelSpace(db));
 	AcDbBlockTableRecordIterator *iter = NULL;
 	rcd.object->newIterator(iter);
 	AcDbEntity* ent = NULL;
