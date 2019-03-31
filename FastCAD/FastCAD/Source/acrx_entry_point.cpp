@@ -17,6 +17,7 @@
 #define PASTE_BLK					L"PasteBlk"
 #define CONNECT_LINES				L"ConnectLines"
 #define CHANGE_BLK_NAME				L"ChangeBlkName"
+#define SAVE_DXF					L"SaveDXF"
 
 #define TEST						L"Test"
 
@@ -28,6 +29,7 @@ std::wstring command_name[] = {
 	PASTE_BLK,
 	CONNECT_LINES,
 	CHANGE_BLK_NAME,
+	SAVE_DXF,
 	TEST
 };
 

@@ -299,6 +299,21 @@ void BlkRefFunc::ChangeBlkBase()
 	catch(...) {}
 }
 
+static void ChangeNameBlkTblRcd(AcDbObjectId id, const AcString& name)
+{
+	ObjectWrap<AcDbBlockReference> br_wrap(DBObject::OpenObjectById<AcDbBlockReference>(id));
+	if (NULL == br_wrap.object)
+		return;
+
+	ObjectWrap<AcDbBlockTableRecord> btr_wrap(
+		DBObject::OpenObjectById<AcDbBlockTableRecord>(br_wrap.object->blockTableRecord()));
+	if (NULL == btr_wrap.object)
+		return;
+
+	btr_wrap.object->upgradeOpen();
+	btr_wrap.object->setName(name.constPtr());
+}
+
 void BlkRefFunc::ChangeBlkName()
 {
 	try
@@ -316,10 +331,39 @@ void BlkRefFunc::ChangeBlkName()
 		std::wstring blk_name = BlockReferenceFuncs::GetBlkRefName(ids[0]);
 		wchar_t* nbn = new wchar_t[200];
 
-		if (RTNORM != acedGetString(0, L"Đổi tên block:", nbn, 200))
+		AcString prompt = AcString(L"Đổi tên block:<");
+		prompt.append(blk_name.c_str());
+		prompt.append(L">");
+		if (RTNORM != acedGetString(0, prompt.constPtr(), nbn, 200))
 			return;
-
+		AcString nbn_str = AcString(nbn);
 		delete[] nbn;
+
+		AcDbObjectId id = DBObject::FindBlockByName(acdbCurDwg(), nbn_str.constPtr());
+		if (id.isNull())
+		{
+			ChangeNameBlkTblRcd(ids[0], nbn_str);
+		}
+		else
+		{
+			std::list<std::wstring> options = std::list<std::wstring>();
+			options.push_back(L"Yes");
+			options.push_back(L"No");
+			int index = UserFuncs::GetOption(L"Block đã tồn tại", options);
+			if (0 == index)
+			{
+				AcDbObjectIdArray ref_ids = DBObject::FindBlockRefsByName(acdbCurDwg(), blk_name.c_str());
+				for (int i = 0; i < ref_ids.length(); i++)
+				{
+					ObjectWrap<AcDbBlockReference> ent_wrap(DBObject::OpenObjectById<AcDbBlockReference>(ref_ids[i]));
+					if (NULL == ent_wrap.object)
+						continue;
+
+					ent_wrap.object->upgradeOpen();
+					ent_wrap.object->setBlockTableRecord(id);
+				}
+			}
+		}
 	}
 	catch (...) {}
 }
