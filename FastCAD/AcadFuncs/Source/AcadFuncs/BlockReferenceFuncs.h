@@ -7,7 +7,7 @@ class BlockReferenceFuncs
 {
 public:
 	static std::wstring GetBlkRefName(const AcDbObjectId &id);
-	static void ExplodeBlkRef(AcDbDatabase* db, AcDbObjectId id, bool del_obj);
+	static AcDbObjectIdArray ExplodeBlkRef(AcDbDatabase* db, AcDbObjectId id, bool del_obj);
 	static void RemoveBlkRef(AcDbDatabase* db, const wchar_t* br_name);
 	static void ScaleBlockReference(const AcDbObjectId & id, const double & val);
 	static AcGePoint3d GetBlkRefPos(const AcDbObjectId & br_id);
@@ -15,6 +15,10 @@ public:
 	static AcDbObjectId AppendBlockReference(const TCHAR * blk_name,
 		const AcGePoint3d & ins_pnt, double scale_num, double rota = 0.0);
 	static void SetDoubleDynBlk(const AcDbObjectId & br_id, const wchar_t * name, double val);
+
+	static void SetBlkRefPosByAttPos(const AcDbObjectId & br_id, const wchar_t * att_tag, const AcGePoint3d & ins_pnt);
+
+	
 };
 
 #endif // _ATTRIBUTE_FUNCS_H_

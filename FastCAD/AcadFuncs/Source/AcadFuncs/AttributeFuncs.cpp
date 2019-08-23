@@ -3,6 +3,54 @@
 #include "../AcadFuncs/AcadFuncs.h"
 #include "../AcadFuncs/DBObject.h"
 
+AcDbObjectIdArray AttributeFuncs::GetAttribute(const AcDbObjectId & br_id)
+{
+	AcDbObjectIdArray att_ids = AcDbObjectIdArray();
+	ObjectWrap<AcDbObject> obj_wrap(DBObject::OpenObjectById<AcDbObject>(br_id));
+	if (NULL != obj_wrap.object && obj_wrap.object->isKindOf(AcDbBlockReference::desc()))
+	{
+		AcDbBlockReference* br = AcDbBlockReference::cast(obj_wrap.object);
+		IteratorWrap<AcDbObjectIterator> prop_iter_wrap(br->attributeIterator());
+		AcDbAttribute *att = NULL;
+
+		while (!prop_iter_wrap.pointer->done())
+		{
+			br->openAttribute(att, prop_iter_wrap.pointer->objectId(), AcDb::kForRead);
+			ObjectWrap<AcDbEntity> ent_wrap(att);
+			if (NULL != att)
+			{
+				att_ids.append(att->id());
+			}
+			prop_iter_wrap.pointer->step();
+		}
+	}
+
+	return att_ids;
+}
+
+std::wstring AttributeFuncs::GetAttributeTag(const AcDbObjectId & br_id, const AcDbObjectId & att_id)
+{
+	ObjectWrap<AcDbBlockReference> blk_ref_wrap(DBObject::OpenObjectById<AcDbBlockReference>(br_id));
+	if (NULL == blk_ref_wrap.object)
+		return L"";
+	IteratorWrap<AcDbObjectIterator> prop_iter(blk_ref_wrap.object->attributeIterator());
+
+	for (; !prop_iter.pointer->done(); prop_iter.pointer->step())
+	{
+		AcDbObjectId attribute_id = prop_iter.pointer->objectId();
+		ObjectWrap<AcDbAttribute> att(NULL);
+		Acad::ErrorStatus val = blk_ref_wrap.object->openAttribute(att.object, attribute_id, AcDb::kForRead);
+		if (Acad::eOk != val)
+			continue;
+
+		if (att_id == attribute_id)
+		{
+			return att.object->tag();
+		}
+	}
+	return std::wstring(L"");
+}
+
 const std::wstring AttributeFuncs::GetAttValueWithTag(AcDbDatabase * db, const wchar_t* entry_name, const wchar_t * tag)
 {
 	AcDbBlockTableRecordIterator *iter = NULL;
@@ -313,12 +361,14 @@ std::wstring AttributeFuncs::GetPropValue(const AcDbObjectId& id, const wchar_t 
 	return std::wstring(L"");
 }
 
-void AttributeFuncs::SetPropValue(const AcDbObjectId& id, const wchar_t * tag, const wchar_t * val)
+ErrorStatus AttributeFuncs::SetPropValue(const AcDbObjectId& id, const wchar_t * tag, const wchar_t * val)
 {
+	ErrorStatus err = ErrorStatus::eNullObjectId;
+
 	AcDbBlockReference* blk_ref = DBObject::OpenObjectById<AcDbBlockReference>(id);
 	ObjectWrap<AcDbBlockReference> blk_ref_wrap(blk_ref);
 	if (NULL == blk_ref)
-		return;
+		return err;
 
 	IteratorWrap<AcDbObjectIterator> prop_iter_wrap(blk_ref->attributeIterator());
 
@@ -334,8 +384,10 @@ void AttributeFuncs::SetPropValue(const AcDbObjectId& id, const wchar_t * tag, c
 			continue;
 
 		att->upgradeOpen();
-		att->setTextString(val);
+		err = att->setTextString(val);
 	}
+
+	return err;
 }
 
 double AttributeFuncs::GetPropRotation(const AcDbObjectId & id, const wchar_t * tag)
@@ -406,22 +458,73 @@ void AttributeFuncs::InvisibleAttribute(const AcDbObjectId & br_id, const wchar_
 
 void AttributeFuncs::SetLockPositionAllAttribute(const AcDbObjectId & br_id, bool lock)
 {
-	AcDbBlockReference* blk_ref = DBObject::OpenObjectById<AcDbBlockReference>(br_id);
-	ObjectWrap<AcDbBlockReference> blk_ref_wrap(blk_ref);
-	if (NULL == blk_ref)
+	ObjectWrap<AcDbBlockReference> blk_ref_wrap(
+		DBObject::OpenObjectById<AcDbBlockReference>(br_id));
+	if (NULL == blk_ref_wrap.object)
 		return;
 
-	IteratorWrap<AcDbObjectIterator> prop_iter_wrap(blk_ref->attributeIterator());
+	IteratorWrap<AcDbObjectIterator> prop_iter_wrap(
+		blk_ref_wrap.object->attributeIterator());
 
 	for (; !prop_iter_wrap.pointer->done(); prop_iter_wrap.pointer->step())
 	{
 		AcDbObjectId att_id = prop_iter_wrap.pointer->objectId();
 		AcDbAttribute* att = NULL;
-		if (Acad::eOk != blk_ref->openAttribute(att, att_id, AcDb::kForRead))
+		if (Acad::eOk != blk_ref_wrap.object->openAttribute(att, att_id, AcDb::kForRead))
 			continue;
 
 		ObjectWrap<AcDbAttribute> att_wrap(att);
 		att->upgradeOpen();
 		att->setLockPositionInBlock(lock);
+	}
+}
+
+AcDbObjectId AttributeFuncs::GetAttID(const AcDbObjectId & id, const wchar_t * tag)
+{
+	ObjectWrap<AcDbBlockReference> blk_ref_wrap(
+		DBObject::OpenObjectById<AcDbBlockReference>(id));
+	if (NULL == blk_ref_wrap.object)
+		return AcDbObjectId::kNull;
+
+	IteratorWrap<AcDbObjectIterator> prop_iter_wrap(
+		blk_ref_wrap.object->attributeIterator());
+
+	for (; !prop_iter_wrap.pointer->done(); prop_iter_wrap.pointer->step())
+	{
+		AcDbObjectId att_id = prop_iter_wrap.pointer->objectId();
+		AcDbAttribute* att = NULL;
+		if (Acad::eOk != blk_ref_wrap.object->openAttribute(att, att_id, AcDb::kForRead))
+			continue;
+
+		ObjectWrap<AcDbAttribute> att_wrap(att);
+		if (0 == wcscmp(tag, att->tag()))
+			return att_id;
+	}
+
+	return AcDbObjectId::kNull;
+}
+
+void AttributeFuncs::SetAttributePosition(const AcDbObjectId & br_id, const wchar_t * tag, const AcGePoint3d & pos)
+{
+	ObjectWrap<AcDbBlockReference> br_wrap(DBObject::OpenObjectById<AcDbBlockReference>(br_id));
+	if (NULL == br_wrap.object)
+		return;
+
+	IteratorWrap<AcDbObjectIterator> prop_iter_wrap(br_wrap.object->attributeIterator());
+
+	for (; !prop_iter_wrap.pointer->done(); prop_iter_wrap.pointer->step())
+	{
+		AcDbObjectId att_id = prop_iter_wrap.pointer->objectId();
+		AcDbAttribute* att = NULL;
+		Acad::ErrorStatus val = br_wrap.object->openAttribute(att, att_id, AcDb::kForRead);
+		if (Acad::eOk != val)
+			continue;
+
+		ObjectWrap<AcDbAttribute> att_wrap(att);
+		if (0 != wcscmp(tag, att->tag()))
+			continue;
+
+		att_wrap.object->upgradeOpen();
+		att_wrap.object->setPosition(pos);
 	}
 }

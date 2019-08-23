@@ -1,32 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Acad2017|Win32">
-      <Configuration>Acad2017</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Acad2017|x64">
-      <Configuration>Acad2017</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Release_ARX_14|Win32">
-      <Configuration>Release_ARX_14</Configuration>
+    <ProjectConfiguration Include="EnbarReborn|Win32">
+      <Configuration>EnbarReborn</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Release_ARX_14|x64">
-      <Configuration>Release_ARX_14</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release_ARX_16|Win32">
-      <Configuration>Release_ARX_16</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release_ARX_16|x64">
-      <Configuration>Release_ARX_16</Configuration>
+    <ProjectConfiguration Include="EnbarReborn|x64">
+      <Configuration>EnbarReborn</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release_ARX|Win32">
@@ -35,6 +19,14 @@
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release_ARX|x64">
       <Configuration>Release_ARX</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_vs2017|Win32">
+      <Configuration>Release_vs2017</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_vs2017|x64">
+      <Configuration>Release_vs2017</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
@@ -79,32 +71,25 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release_ARX|x64'">
-    <PlatformToolset>v140</PlatformToolset>
-    <ConfigurationType>StaticLibrary</ConfigurationType>
-    <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>Unicode</CharacterSet>
-    <WholeProgramOptimization>false</WholeProgramOptimization>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Acad2017|x64'" Label="Configuration">
-    <PlatformToolset>v140</PlatformToolset>
-    <ConfigurationType>StaticLibrary</ConfigurationType>
-    <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>Unicode</CharacterSet>
-    <WholeProgramOptimization>false</WholeProgramOptimization>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_ARX_16|x64'" Label="Configuration">
     <PlatformToolset>v141</PlatformToolset>
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseOfMfc>Dynamic</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>false</WholeProgramOptimization>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_ARX_14|x64'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_vs2017|x64'" Label="Configuration">
+    <PlatformToolset>v141</PlatformToolset>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EnbarReborn|x64'" Label="Configuration">
     <PlatformToolset>v141</PlatformToolset>
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseOfMfc>Dynamic</UseOfMfc>
@@ -114,13 +99,10 @@
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release_ARX|Win32'">
     <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Acad2017|Win32'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_vs2017|Win32'" Label="Configuration">
     <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_ARX_16|Win32'" Label="Configuration">
-    <PlatformToolset>v141</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_ARX_14|Win32'" Label="Configuration">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EnbarReborn|Win32'" Label="Configuration">
     <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -152,24 +134,20 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(CONTOURLINE_BUILD)</OutDir>
+    <OutDir>$(ENBAR_BUILD)\</OutDir>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_ARX|x64'">
     <TargetExt>.lib</TargetExt>
-    <OutDir>$(FASTCAD_BUILD)</OutDir>
+    <OutDir>$(ENBAR_BUILD)\</OutDir>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Acad2017|x64'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_vs2017|x64'">
     <TargetExt>.lib</TargetExt>
-    <OutDir>$(FASTCAD_BUILD)</OutDir>
+    <OutDir>$(ENBARREBORN_BUILD_2019)</OutDir>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_ARX_16|x64'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EnbarReborn|x64'">
     <TargetExt>.lib</TargetExt>
-    <OutDir>$(TOOLARX_BUILD)</OutDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_ARX_14|x64'">
-    <TargetExt>.lib</TargetExt>
-    <OutDir>$(TOOLARX_BUILD)</OutDir>
+    <OutDir>$(ENBARREBORN_BUILD_2019)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -240,7 +218,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_ARX|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(OBJECTARX_2017)\inc;$(OBJECTARX_2017)\inc-x64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ObjectARX)\inc;$(ObjectARX)\inc-x64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_AFXEXT;_USING_ARX_;UNICODE;_AFXDLL</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ProgramDataBaseFileName>$(PTFASTER_BUILD)\$(ProjectName).pdb</ProgramDataBaseFileName>
@@ -249,13 +227,12 @@
     </ClCompile>
     <Lib>
       <AdditionalDependencies>accore.lib;acad.lib;acui22.lib;adui22.lib;ac1st22.lib;acdb22.lib;acge22.lib;acgiapi.lib;acISMobj22.lib;rxapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OBJECTARX_2018)\lib-x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>$(ObjectARX)\lib-x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Acad2017|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_vs2017|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(OBJECTARX_2017)\inc;$(OBJECTARX_2017)\inc-x64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ObjectARX_2019)\inc;$(ObjectARX_2019)\inc-x64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_AFXEXT;_USING_ARX_;UNICODE;_AFXDLL</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ProgramDataBaseFileName>$(PTFASTER_BUILD)\$(ProjectName).pdb</ProgramDataBaseFileName>
@@ -263,14 +240,13 @@
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>accore.lib;acad.lib;acui21.lib;adui21.lib;ac1st21.lib;acdb21.lib;acge21.lib;acgiapi.lib;acISMobj21.lib;rxapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OBJECTARX_2017)\lib-x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>accore.lib;acad.lib;acui23.lib;adui23.lib;ac1st23.lib;acdb23.lib;acge23.lib;acgiapi.lib;acISMobj23.lib;rxapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ObjectARX_2019)\lib-x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_ARX_16|x64'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EnbarReborn|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ObjectARX_2016)\inc;$(ObjectARX_2016)\inc-x64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ObjectARX_2019)\inc;$(ObjectARX_2019)\inc-x64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_AFXEXT;_USING_ARX_;UNICODE;_AFXDLL</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <ProgramDataBaseFileName>$(PTFASTER_BUILD)\$(ProjectName).pdb</ProgramDataBaseFileName>
@@ -278,26 +254,11 @@
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>accore.lib;acad.lib;acui20.lib;adui20.lib;ac1st20.lib;acdb20.lib;acge20.lib;acgiapi.lib;acISMobj20.lib;rxapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ObjectARX_2016)\lib-x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Lib>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_ARX_14|x64'">
-    <ClCompile>
-      <AdditionalIncludeDirectories>$(ObjectARX_2014)\inc;$(ObjectARX_2014)\inc-x64;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_AFXEXT;_USING_ARX_;UNICODE;_AFXDLL</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <ProgramDataBaseFileName>$(TOOLARX_BUILD)\$(ProjectName).pdb</ProgramDataBaseFileName>
-      <Optimization>Disabled</Optimization>
-      <WholeProgramOptimization>false</WholeProgramOptimization>
-    </ClCompile>
-    <Lib>
-      <AdditionalDependencies>accore.lib;acad.lib;acui19.lib;adui19.lib;ac1st19.lib;acdb19.lib;acge19.lib;acgiapi.lib;acISMobj19.lib;rxapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ObjectARX_2014)\lib-x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>accore.lib;acad.lib;acui23.lib;adui23.lib;ac1st23.lib;acdb23.lib;acge23.lib;acgiapi.lib;acISMobj23.lib;rxapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ObjectARX_2019)\lib-x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Source\AcadFuncs.h" />
     <ClInclude Include="Source\AcadFuncs\AcadFuncs.h" />
     <ClInclude Include="Source\AcadFuncs\ARXFuncs.h" />
     <ClInclude Include="Source\AcadFuncs\AttributeFuncs.h" />

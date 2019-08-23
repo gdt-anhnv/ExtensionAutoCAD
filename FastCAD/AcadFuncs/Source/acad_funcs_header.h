@@ -12,4 +12,5 @@
 #include "AcadFuncs\BlockReferenceFuncs.h"
 #include "AcadFuncs\dictionary_funcs.h"
 
+
 #endif // !_ACAD_FUNCS_HEADER_H_

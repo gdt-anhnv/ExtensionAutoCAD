@@ -67,68 +67,6 @@ AcDbObjectIdArray ARXFuncs::GetEntsInsidePolyline(const AcDbObjectId & id)
 	return ids;
 }
 
-AcDbObjectIdArray ARXFuncs::GetEntsInsidePolyline2(const AcDbObjectId & id)
-{
-	AcDbObjectIdArray ids = AcDbObjectIdArray();
-	AcGePoint3dArray pts = AcGePoint3dArray();
-
-	{
-		ObjectWrap<AcDbObject> obj_wrap(DBObject::OpenObjectById<AcDbObject>(id));
-		if (obj_wrap.object->isKindOf(AcDbPolyline::desc()))
-		{
-			AcDbPolyline* pl = AcDbPolyline::cast(obj_wrap.object);
-			if (pl->isClosed())
-			{
-				pts = GeoFuncs::GetListVertexOfPolyline(pl);
-			}
-			else
-			{
-				pts = GeoFuncs::GetListVertexOfPolyline(pl);
-				if (!pts[0].isEqualTo(pts[pts.length() - 1]))
-					pts.append(pts[0]);
-			}
-		}
-	}
-
-	ZoomIntoZone(id);
-	if (pts.isEmpty())
-	{
-		return ids;
-	}
-
-	ads_point pt;
-	resbuf *pnts = acutBuildList(RT3DPOINT, asDblArray(pts[0]));
-	for (int i = 1; i < pts.length(); i++)
-	{
-		pnts = Functions::AppendToResbuf(pnts,
-			acutBuildList(
-				RT3DPOINT, asDblArray(pts[i]), // Next point
-				RTNONE)
-		);
-	}
-	AdsNameWrap cp_wrap;
-	int ret = acedSSGet(L"CP", pnts, NULL, NULL, cp_wrap.ads);
-	acutRelRb(pnts);
-	Adesk::Int32 num_ent = 0;
-	ret = acedSSLength(cp_wrap.ads, &num_ent);
-	if (RTNORM != ret)
-		return ids;
-
-	for (int i = 0; i < num_ent; i++)
-	{
-		ads_name tmp = { 0, 0 };
-		if (RTNORM != acedSSName(cp_wrap.ads, i, tmp))
-			continue;
-		AcDbObjectId tmp_id = AcDbObjectId::kNull;
-		if (Acad::eOk == acdbGetObjectId(tmp_id, tmp))
-		{
-			ids.append(tmp_id);
-		}
-	}
-
-	return ids;
-}
-
 void ARXFuncs::ZoomIntoZone(const AcDbObjectId & id)
 {
 	ads_name ssname;
@@ -154,12 +92,12 @@ void ARXFuncs::ZoomIntoZoneExtent(const AcDbObjectId & id, int exten_val)
 	}
 }
 
-AcDbObjectId ARXFuncs::GetObjectByPicking(wchar_t * prompt)
+AcDbObjectId ARXFuncs::GetObjectByPicking(const wchar_t * prompt)
 {
 	AcDbObjectId id = AcDbObjectId::kNull;
 	AdsNameWrap anw;
 
-	wchar_t* pts[] = { prompt, L"" };
+	const wchar_t* pts[] = { prompt, L"" };
 
 	if (RTNORM != acedSSGet(L"_+.:S:$", pts, NULL, NULL, anw.ads))
 		return id;
@@ -202,12 +140,12 @@ AcDbObjectIdArray ARXFuncs::GetObjIdsByPicking()
 	return ids;
 }
 
-AcDbObjectIdArray ARXFuncs::GetObjIdsByPicking(wchar_t * prompt)
+AcDbObjectIdArray ARXFuncs::GetObjIdsByPicking(const wchar_t * prompt)
 {
 	AcDbObjectIdArray ids = AcDbObjectIdArray();
 	AdsNameWrap anw;
 
-	wchar_t* pts[] = { prompt, L"" };
+	const wchar_t* pts[] = { prompt, L"" };
 
 	if (RTNORM != acedSSGet(L"_+.:S:$", pts, NULL, NULL, anw.ads))
 		return ids;
@@ -235,11 +173,11 @@ AcDbObjectIdArray ARXFuncs::GetObjIdsInSelected()
 	return ids;
 }
 
-AcDbObjectIdArray ARXFuncs::GetObjIdsInSelected(wchar_t* prompt)
+AcDbObjectIdArray ARXFuncs::GetObjIdsInSelected(const wchar_t* prompt)
 {
 	AcDbObjectIdArray ids = AcDbObjectIdArray();
 	AdsNameWrap anw;
-	wchar_t* pts[] = { prompt, L"" };
+	const wchar_t* pts[] = { prompt, L"" };
 	int ret = acedSSGet(L":$", pts, NULL, NULL, anw.ads);
 
 	if (RTCAN == ret)

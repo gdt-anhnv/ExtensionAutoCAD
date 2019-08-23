@@ -1,7 +1,7 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AcadFunc_vs2008", "AcadFunc_vs2008.vcxproj", "{4F09E039-A9FB-48F1-A0C6-36B559E1EDBA}"
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AcadFunc_vs2008", "AcadFunc_vs2008.vcproj", "{4F09E039-A9FB-48F1-A0C6-36B559E1EDBA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

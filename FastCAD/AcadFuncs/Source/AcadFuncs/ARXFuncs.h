@@ -9,17 +9,16 @@ public:
 	//only use for arx
 #ifdef _USING_ARX_
 	static AcDbObjectIdArray GetEntsInsidePolyline(const AcDbObjectId & id);
-	static AcDbObjectIdArray GetEntsInsidePolyline2(const AcDbObjectId & id);
 	static void ZoomIntoZone(const AcDbObjectId & id);
 	static void ZoomIntoZoneExtent(const AcDbObjectId & id, int exten_val);
 
-	static AcDbObjectId GetObjectByPicking(wchar_t* prompt);
+	static AcDbObjectId GetObjectByPicking(const wchar_t* prompt);
 
 	static AcDbObjectIdArray GeLastCreatedObjId();
 	static AcDbObjectIdArray GetObjIdsByPicking();
-	static AcDbObjectIdArray GetObjIdsByPicking(wchar_t* prompt);
+	static AcDbObjectIdArray GetObjIdsByPicking(const wchar_t* prompt);
 	static AcDbObjectIdArray GetObjIdsInSelected();
-	static AcDbObjectIdArray GetObjIdsInSelected(wchar_t* prompt);
+	static AcDbObjectIdArray GetObjIdsInSelected(const wchar_t* prompt);
 	static AcDbObjectIdArray GetObjIdsInWindow(const AcGePoint3d& pnt1, const AcGePoint3d& pnt2);
 	static void ConvertToAdsPoint(AcGePoint3d pnt, ads_point);
 	static AcGePoint3d ConvertAdsToPoint(const ads_point);

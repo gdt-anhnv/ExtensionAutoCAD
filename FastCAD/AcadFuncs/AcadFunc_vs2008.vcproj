@@ -172,7 +172,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="&quot;$(ObjectARX_2012)\inc&quot;;&quot;$(ObjectARX_2012)\inc-win32&quot;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_AFXEXT;_USING_ARX_;UNICODE;_AFXDLL"
+				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_AFXEXT;_USING_ARX_;UNICODE;ACAD_2012;_AFXDLL"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -237,8 +237,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="$(ObjectARX_2012)\inc;$(ObjectARX_2012)\inc-x64"
-				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_AFXEXT;_USING_ARX_;UNICODE;_AFXDLL"
+				AdditionalIncludeDirectories="&quot;$(OBJECTARX_2012)\inc&quot;;&quot;$(OBJECTARX_2012)\inc-x64&quot;"
+				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;_AFXEXT;_USING_ARX_;UNICODE;_AFXDLL;ACAD_2012"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -257,7 +257,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				AdditionalDependencies="acad.lib acdb18.lib acge18.lib AcMPolygonObj18.lib rxapi.lib axdb.lib"
-				AdditionalLibraryDirectories="$(ObjectARX_2012)\lib-x64"
+				AdditionalLibraryDirectories="$(OBJECTARX_2012)\lib-x64"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -285,91 +285,51 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\Source\AcadFuncs.cpp"
+				RelativePath=".\Source\AcadFuncs\AcadFuncs.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\ads_name_wrap.cpp"
+				RelativePath=".\Source\Wrap\ads_name_wrap.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\att_def_wrap.cpp"
+				RelativePath=".\Source\AcadFuncs\ARXFuncs.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\attribute_wrap.cpp"
+				RelativePath=".\Source\AcadFuncs\AttributeFuncs.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\blk_reference_wrap.cpp"
+				RelativePath=".\Source\AcadFuncs\BlockReferenceFuncs.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\blk_tbl_rcd_wrap.cpp"
+				RelativePath=".\Source\AcadFuncs\DBObject.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\blk_tbl_wrap.cpp"
+				RelativePath=".\Source\AcadFuncs\dictionary_funcs.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\dim_style_tbl_rcd_wrap.cpp"
+				RelativePath=".\Source\AcadFuncs\Geometry.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\dim_style_tbl_wrap.cpp"
+				RelativePath=".\Source\AcadFuncs\LayerFuncs.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\dyn_blk_ref_wrap.cpp"
+				RelativePath=".\Source\Wrap\res_buf_wrap.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\entity_wrap.cpp"
+				RelativePath=".\Source\AcadFuncs\UserFuncs.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\layer_tbl_rcd_wrap.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\layer_tbl_wrap.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\object_wrap.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\reg_app_tbl_rcd_wrap.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\reg_app_tbl_wrap.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\res_buf_wrap.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\text_style_tbl_rcd_wrap.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\text_style_tbl_wrap.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\text_wrap.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\viewport_tbl_rcd_wrap.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\viewport_tbl_wrap.cpp"
+				RelativePath=".\Source\AcadFuncs\XData.cpp"
 				>
 			</File>
 		</Filter>
@@ -379,39 +339,35 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\Source\acad_funcs_header.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Source\acad_header.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\acad_wrap.h"
+				RelativePath=".\Source\Wrap\acad_obj_wrap.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\AcadFuncs.h"
+				RelativePath=".\Source\AcadFuncs\AcadFuncs.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\ads_name_wrap.h"
+				RelativePath=".\Source\Wrap\ads_name_wrap.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\att_def_wrap.h"
+				RelativePath=".\Source\AcadFuncs\ARXFuncs.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\attribute_wrap.h"
+				RelativePath=".\Source\AcadFuncs\AttributeFuncs.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\blk_reference_wrap.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\blk_tbl_rcd_wrap.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\blk_tbl_wrap.h"
+				RelativePath=".\Source\AcadFuncs\BlockReferenceFuncs.h"
 				>
 			</File>
 			<File
@@ -419,63 +375,39 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Source\dim_style_tbl_rcd_wrap.h"
+				RelativePath=".\Source\AcadFuncs\DBObject.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\dim_style_tbl_wrap.h"
+				RelativePath=".\Source\AcadFuncs\dictionary_funcs.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\dyn_blk_ref_wrap.h"
+				RelativePath=".\Source\AcadFuncs\Geometry.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\entity_wrap.h"
+				RelativePath=".\Source\Wrap\iterator_wrap.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\layer_tbl_rcd_wrap.h"
+				RelativePath=".\Source\AcadFuncs\LayerFuncs.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\layer_tbl_wrap.h"
+				RelativePath=".\Source\Wrap\res_buf_wrap.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\object_wrap.h"
+				RelativePath=".\Source\AcadFuncs\UserFuncs.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\reg_app_tbl_rcd_wrap.h"
+				RelativePath=".\Source\wrap_header.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Source\reg_app_tbl_wrap.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\res_buf_wrap.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\text_style_tbl_rcd_wrap.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\text_style_tbl_wrap.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\text_wrap.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\viewport_tbl_rcd_wrap.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Source\viewport_tbl_wrap.h"
+				RelativePath=".\Source\AcadFuncs\XData.h"
 				>
 			</File>
 		</Filter>

@@ -437,7 +437,8 @@ double GeoFuncs::GetLengthCurve(const AcDbObjectId & id)
 double GeoFuncs::GetLengthLine(const AcDbObjectId & line)
 {
 	ObjectWrap<AcDbLine> l = DBObject::OpenObjectById<AcDbLine>(line);
-
+	if (l.object == NULL)
+		throw int(1);
 	return l.object->endPoint().distanceTo(l.object->startPoint());
 }
 

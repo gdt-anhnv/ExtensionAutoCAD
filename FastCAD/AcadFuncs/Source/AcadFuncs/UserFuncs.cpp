@@ -152,6 +152,7 @@ AcGePoint3d UserFuncs::UserGetPointByPoint(std::wstring prompt, const AcGePoint3
 	}
 }
 
+
 int UserFuncs::GetOption(const std::wstring & title, const std::list<std::wstring>& options)
 {
 		std::list<std::wstring> rows = options;
@@ -184,7 +185,7 @@ int UserFuncs::GetOption(const std::wstring & title, const std::list<std::wstrin
 			}
 
 
-			std::wstring prompt = L"\n" + title + L": [" + option + L"]<" + *rows.begin() + L">: ";
+			std::wstring prompt = L"" + title + L"[" + option + L"]<" + *rows.begin() + L">: ";
 
 			int rc = acedGetKword(prompt.c_str(), kw);
 

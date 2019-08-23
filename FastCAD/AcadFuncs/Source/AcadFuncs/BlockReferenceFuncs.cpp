@@ -34,8 +34,11 @@ std::wstring BlockReferenceFuncs::GetBlkRefName(const AcDbObjectId & id)
 	return result;
 }
 
-void BlockReferenceFuncs::ExplodeBlkRef(AcDbDatabase * db, AcDbObjectId id, bool del_obj)
+AcDbObjectIdArray BlockReferenceFuncs::ExplodeBlkRef(AcDbDatabase * db, AcDbObjectId id, bool del_obj)
 {
+
+	AcDbObjectIdArray result = AcDbObjectIdArray();
+
 	ObjectWrap<AcDbObject> obj_wrap(OpenObjectId<AcDbObject>(id));
 	if (NULL != obj_wrap.object)
 	{
@@ -54,6 +57,10 @@ void BlockReferenceFuncs::ExplodeBlkRef(AcDbDatabase * db, AcDbObjectId id, bool
 				if (NULL != sub_ent)
 					err = ms_wrap.object->appendAcDbEntity(
 						ins_id, ObjectWrap<AcDbEntity>(sub_ent).object);
+
+				if (AcDbObjectId::kNull != ins_id)
+					result.append(ins_id);
+
 			}
 		}
 
@@ -63,7 +70,7 @@ void BlockReferenceFuncs::ExplodeBlkRef(AcDbDatabase * db, AcDbObjectId id, bool
 			obj_wrap.object->erase();
 		}
 	}
-
+	return result;
 }
 
 
@@ -170,3 +177,15 @@ void BlockReferenceFuncs::SetDoubleDynBlk(const AcDbObjectId & br_id, const wcha
 	}
 }
 
+void BlockReferenceFuncs::SetBlkRefPosByAttPos(const AcDbObjectId & br_id, const wchar_t * att_tag, const AcGePoint3d & ins_pnt)
+{
+	BlockReferenceFuncs::SetBlkRefPos(br_id, ins_pnt);
+	AcGePoint3d att_pnt = AttributeFuncs::GetAttributePosition(br_id, att_tag);
+
+	double distance = ins_pnt.distanceTo(att_pnt);
+
+	AcGeVector3d vec = att_pnt - ins_pnt;
+	vec = vec.normal();
+
+	BlockReferenceFuncs::SetBlkRefPos(br_id, ins_pnt - vec * distance);
+}

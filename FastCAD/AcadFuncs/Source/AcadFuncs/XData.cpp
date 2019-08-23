@@ -106,7 +106,8 @@ bool XDataFuncs::CheckXDataAppname(const AcDbObjectId & id, const std::wstring &
 	return NULL != res_wrap.res_buf ? true : false;
 }
 
-void XDataFuncs::AddXDataWstringVal(const AcDbObjectId & id, const std::wstring & app_name, const ACHAR * value)
+void XDataFuncs::AddXDataWstringVal(const AcDbObjectId & id,
+	const std::wstring & app_name, const ACHAR * value)
 {
 	Acad::ErrorStatus ret = eOk;
 	if (AcDbObjectId::kNull == id)
@@ -291,7 +292,7 @@ void XDataFuncs::AddXDataDoubleVal(const AcDbObjectId & id, const std::wstring &
 	obj_wrap.object->downgradeOpen();
 }
 
-void XDataFuncs::RemoveXData(const AcDbObjectId & id, const std::wstring & app_name)
+void XDataFuncs::DeleteXData(const AcDbObjectId & id, const std::wstring & app_name)
 {
 	ObjectWrap<AcDbEntity> ent_wrap(OpenObjectId<AcDbEntity>(id));
 	if (NULL == ent_wrap.object)
@@ -305,6 +306,57 @@ void XDataFuncs::RemoveXData(const AcDbObjectId & id, const std::wstring & app_n
 		ent_wrap.object->setXData(xdata.res_buf);
 		xdata.res_buf->rbnext = xdata_next;
 	}
+}
+
+bool XDataFuncs::RemoveXData(const AcDbObjectId & id, const std::wstring & app_name, const std::wstring & xdata_tag)
+{
+	bool ret = false;
+
+	ObjectWrap<AcDbEntity> ent_wrap(OpenObjectId<AcDbEntity>(id));
+	if (ent_wrap.object == NULL)
+	{
+		return false;
+	}
+
+	ResBufWrap rb_wrap(ent_wrap.object->xData(app_name.c_str()));
+	if (rb_wrap.res_buf == NULL)
+	{
+		return false;
+	}
+	resbuf *pre_res = rb_wrap.res_buf;
+	resbuf* tmp_res = rb_wrap.res_buf->rbnext;
+
+	while (NULL != tmp_res)
+	{
+		if (tmp_res->restype == AcDb::kDxfXdAsciiString
+			&& tmp_res->resval.rstring == xdata_tag)
+		{
+			if (NULL != tmp_res->rbnext)
+			{
+
+				pre_res->rbnext = tmp_res->rbnext->rbnext;
+
+				//free resbuf
+				{
+					resbuf * tmp = tmp_res;
+					tmp->rbnext->rbnext = NULL;
+					acutRelRb(tmp_res);
+				}
+
+				tmp_res = pre_res;
+			}
+		}
+		pre_res = tmp_res;
+		tmp_res = tmp_res->rbnext;
+	}
+	ErrorStatus err = ent_wrap.object->upgradeOpen();
+	if (err == ErrorStatus::eOk)
+	{
+		err = ent_wrap.object->setXData(rb_wrap.res_buf);
+		return true;
+	}
+	return ret;
+
 }
 
 bool XDataFuncs::ChangeXdataDoubleVal(AcDbObjectId id,
@@ -463,7 +515,7 @@ AcDbObjectId XDataFuncs::GetObjId(resbuf * rb)
 	return obj_id;
 }
 
-AcDbObjectIdArray XDataFuncs::GetXdataHandle(const AcDbObjectId & id,
+AcDbObjectIdArray XDataFuncs::GetObjectsByXdataHandle(const AcDbObjectId & id,
 	const std::wstring & app_name, const std::wstring & handle_tag)
 {
 	ObjectWrap<AcDbEntity> ent(OpenObjectId<AcDbEntity>(id));
@@ -494,12 +546,43 @@ AcDbObjectIdArray XDataFuncs::GetXdataHandle(const AcDbObjectId & id,
 	return AcDbObjectIdArray();
 }
 
+bool XDataFuncs::AddXDataAppName(const AcDbObjectId & id, const std::wstring & app_name)
+{
+	bool ret = false;
+
+	if (AcDbObjectId::kNull == id)
+		return false;
+	ObjectWrap<AcDbObject> obj_wrap(OpenObjectId<AcDbObject>(id));
+
+	if (NULL == obj_wrap.object)
+		return false;
+
+	if (!Functions::HasRegAppName(acdbCurDwg(), app_name.c_str()))
+		Functions::AddRegAppName(acdbCurDwg(), app_name.c_str());
+
+	ResBufWrap res_wrap(obj_wrap.object->xData(app_name.c_str()));
+
+	if (NULL == res_wrap.res_buf)
+	{
+		res_wrap.res_buf = acutBuildList(
+			AcDb::kDxfRegAppName, app_name.c_str(),
+			RTNONE);
+	}
+	else
+		return false;
+	
+	obj_wrap.object->upgradeOpen();
+	Acad::ErrorStatus err = obj_wrap.object->setXData(res_wrap.res_buf);
+	obj_wrap.object->downgradeOpen();
+	return Acad::eOk == ret;
+}
+
 std::wstring XDataFuncs::GetXData(const AcDbObjectId & id, const std::wstring & app_name, const std::wstring & tag)
 {
 	std::wstring result = L"";
 	ObjectWrap<AcDbObject> obj_wrap(OpenObjectId<AcDbObject>(id));
 	if (NULL == obj_wrap.object)
-		return false;
+		return result;
 
 	ResBufWrap res_wrap(obj_wrap.object->xData(app_name.c_str()));
 
@@ -530,6 +613,133 @@ std::wstring XDataFuncs::GetXData(const AcDbObjectId & id, const std::wstring & 
 
 		}
 		tmp_res = tmp_res->rbnext;
+	}
+	return result;
+}
+
+std::list<std::wstring> XDataFuncs::GetXDataWstringVal(const AcDbObjectId & id, const std::wstring & app_name, const std::wstring & tag)
+{
+	std::list<std::wstring> result = std::list<std::wstring>();
+
+	ObjectWrap<AcDbObject> obj_wrap(OpenObjectId<AcDbObject>(id));
+	if (NULL == obj_wrap.object)
+		return result;
+
+	ResBufWrap res_wrap(obj_wrap.object->xData(app_name.c_str()));
+
+	struct resbuf* tmp_res = res_wrap.res_buf;
+	/*if (NULL != res_wrap.res_buf)
+	tmp_res = res_wrap.res_buf->rbnext;*/
+
+	while (NULL != tmp_res)
+	{
+		if (AcDb::kDxfXdAsciiString == tmp_res->restype && tag == tmp_res->resval.rstring)
+		{
+			struct resbuf* next_res = tmp_res->rbnext;
+
+			if (NULL != next_res)
+			{
+				if (AcDb::kDxfXdAsciiString == next_res->restype)
+				{
+					result.push_back(next_res->resval.rstring);
+				}
+			}
+
+		}
+		tmp_res = tmp_res->rbnext;
+	}
+	return result;
+}
+
+std::list<int> XDataFuncs::GetXDataIntVal(const AcDbObjectId & id, const std::wstring & app_name, const std::wstring & tag)
+{
+	std::list<int> result = std::list<int>();
+
+	ObjectWrap<AcDbObject> obj_wrap(OpenObjectId<AcDbObject>(id));
+	if (NULL == obj_wrap.object)
+		return result;
+
+	ResBufWrap res_wrap(obj_wrap.object->xData(app_name.c_str()));
+
+	struct resbuf* tmp_res = res_wrap.res_buf;
+	/*if (NULL != res_wrap.res_buf)
+	tmp_res = res_wrap.res_buf->rbnext;*/
+
+	while (NULL != tmp_res)
+	{
+		if ((AcDb::kDxfXdAsciiString == tmp_res->restype || AcDb::kDxfRegAppName == tmp_res->restype) && tag == tmp_res->resval.rstring)
+		{
+			struct resbuf* next_res = tmp_res->rbnext;
+
+			if (NULL != next_res)
+			{
+				if (AcDb::kDxfXdInteger16 == next_res->restype || AcDb::kDxfXdInteger32 == next_res->restype)
+				{
+					result.push_back(next_res->resval.rint);
+				}
+			}
+
+		}
+		tmp_res = tmp_res->rbnext;
+	}
+	return result;
+}
+
+std::list<double> XDataFuncs::GetXDataDoubleVal(const AcDbObjectId & id, const std::wstring & app_name, const std::wstring & tag)
+{
+	std::list<double> result = std::list<double>();
+
+	ObjectWrap<AcDbObject> obj_wrap(OpenObjectId<AcDbObject>(id));
+	if (NULL == obj_wrap.object)
+		return result;
+
+	ResBufWrap res_wrap(obj_wrap.object->xData(app_name.c_str()));
+
+	struct resbuf* tmp_res = res_wrap.res_buf;
+	/*if (NULL != res_wrap.res_buf)
+	tmp_res = res_wrap.res_buf->rbnext;*/
+
+	while (NULL != tmp_res)
+	{
+		if ((AcDb::kDxfXdAsciiString == tmp_res->restype || AcDb::kDxfRegAppName == tmp_res->restype) && tag == tmp_res->resval.rstring)
+		{
+			struct resbuf* next_res = tmp_res->rbnext;
+
+			if (NULL != next_res)
+			{
+				if (AcDb::kDxfXdReal == next_res->restype)
+				{
+					result.push_back(next_res->resval.rreal);
+				}
+			}
+		}
+		tmp_res = tmp_res->rbnext;
+	}
+	return result;
+}
+
+AcDbObjectIdArray XDataFuncs::FindObjectsByXData(const std::wstring & app_name, const std::wstring & val)
+{
+	AcDbObjectIdArray result = AcDbObjectIdArray();
+
+	IteratorWrap<AcDbBlockTableRecordIterator> iter = NULL;
+	{
+		WrapBlkTblRcd rcd_wrap(
+			DBObject::GetModelSpace(acdbCurDwg()));
+		if (NULL == rcd_wrap.object)
+			return NULL;
+
+		rcd_wrap.object->newIterator(iter.pointer);
+	}
+	while (!iter.pointer->done())
+	{
+		AcDbObjectId ent_id = AcDbObjectId::kNull;
+		iter.pointer->getEntityId(ent_id);
+
+		if (true == CheckXDataStringVal(ent_id, app_name, val))
+			result.append(ent_id);
+
+		iter.pointer->step();
 	}
 	return result;
 }

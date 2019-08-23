@@ -428,6 +428,7 @@ bool Functions::HasRegAppName(AcDbDatabase * db, const wchar_t * app_name)
 	if (Adesk::kTrue == rat_wrap.object->has(app_name))
 		return true;
 	return false;
+
 }
 
 void Functions::AddRegAppName(AcDbDatabase * db, const wchar_t * app_name)
@@ -440,6 +441,7 @@ void Functions::AddRegAppName(AcDbDatabase * db, const wchar_t * app_name)
 		delete ratr;
 	else
 		ratr->close();
+
 }
 
 

@@ -18,12 +18,23 @@ public:
 	static void SetXData(AcDbDatabase* db, const AcDbObjectId& id, const resbuf* xdata);
 	static void AddXDataDoubleVal(const AcDbObjectId & id, const std::wstring & app_name, const double & value);
 	//make sure object already close when use this func
-	static void RemoveXData(const AcDbObjectId & id, const std::wstring & app_name);
+	static void DeleteXData(const AcDbObjectId & id, const std::wstring & app_name);
+	static bool RemoveXData(const AcDbObjectId & id, const std::wstring & app_name, const std::wstring & xdata_tag);
 	static std::wstring GetXData(const AcDbObjectId &id, const std::wstring & app_name, const std::wstring & tag);
+
+	static std::list<std::wstring> GetXDataWstringVal(const AcDbObjectId &id, const std::wstring & app_name, 
+		const std::wstring & tag);
+
+	static std::list<int> GetXDataIntVal(const AcDbObjectId & id, const std::wstring & appname, const std::wstring &tag);
+
+	static std::list<double> GetXDataDoubleVal(const AcDbObjectId & id, const std::wstring & appname, const std::wstring &tag);
+
+	static AcDbObjectIdArray FindObjectsByXData(const std::wstring & app_name, const std::wstring & val);
+
 	static bool ChangeXDataWstringVal(const AcDbObjectId & id,
-		const std::wstring & app_name, const std::wstring & pre_name,const std::wstring & val);
+		const std::wstring & app_name, const std::wstring & xdata_tag,const std::wstring & val);
 	static bool ChangeXDataHandleVal(const AcDbObjectId & id,
-		const std::wstring & app_name, const std::wstring & pre_name, const std::wstring & val);
+		const std::wstring & app_name, const std::wstring & xdata_tag, const std::wstring & val);
 	static bool ChangeXdataDoubleVal(AcDbObjectId id, const std::wstring & app_name,
 		const std::wstring & xdata_tag, const double & value);
 	static bool ChangeXdataIntVal(AcDbObjectId id, const std::wstring & app_name,
@@ -31,8 +42,10 @@ public:
 	static void AddXdataHandle(const AcDbObjectId & des_id, const std::wstring & app_name, AcDbObjectId source_id);
 	static AcDbObjectId GetObjId(struct resbuf* rb);
 
-	static AcDbObjectIdArray GetXdataHandle(const AcDbObjectId &id,
+	static AcDbObjectIdArray GetObjectsByXdataHandle(const AcDbObjectId &id,
 		const std::wstring & app_name, const std::wstring & tag);
+
+	static bool AddXDataAppName(const AcDbObjectId & id, const std::wstring & app_name);
 };
 
 #endif

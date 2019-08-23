@@ -75,9 +75,6 @@
     <ClInclude Include="Source\Wrap\iterator_wrap.h">
       <Filter>Header Files\Wrap</Filter>
     </ClInclude>
-    <ClInclude Include="Source\AcadFuncs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\AcadFuncs\BlockReferenceFuncs.h">
       <Filter>Header Files\AcadFuncs</Filter>
     </ClInclude>
