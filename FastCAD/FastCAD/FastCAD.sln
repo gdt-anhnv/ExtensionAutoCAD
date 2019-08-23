@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AcadFuncs", "..\AcadFuncs\A
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Acad2017|x64 = Acad2017|x64
+		Acad2017|x86 = Acad2017|x86
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
 		Rel_Mechanical|x64 = Rel_Mechanical|x64
@@ -23,6 +25,10 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BA79C36D-D0E4-4B04-B66A-64D1F1A6737C}.Acad2017|x64.ActiveCfg = Acad2017|x64
+		{BA79C36D-D0E4-4B04-B66A-64D1F1A6737C}.Acad2017|x64.Build.0 = Acad2017|x64
+		{BA79C36D-D0E4-4B04-B66A-64D1F1A6737C}.Acad2017|x86.ActiveCfg = Acad2017|Win32
+		{BA79C36D-D0E4-4B04-B66A-64D1F1A6737C}.Acad2017|x86.Build.0 = Acad2017|Win32
 		{BA79C36D-D0E4-4B04-B66A-64D1F1A6737C}.Debug|x64.ActiveCfg = Debug|x64
 		{BA79C36D-D0E4-4B04-B66A-64D1F1A6737C}.Debug|x64.Build.0 = Debug|x64
 		{BA79C36D-D0E4-4B04-B66A-64D1F1A6737C}.Debug|x86.ActiveCfg = Debug|Win32
@@ -47,6 +53,10 @@ Global
 		{BA79C36D-D0E4-4B04-B66A-64D1F1A6737C}.Release|x64.Build.0 = Release|x64
 		{BA79C36D-D0E4-4B04-B66A-64D1F1A6737C}.Release|x86.ActiveCfg = Release|Win32
 		{BA79C36D-D0E4-4B04-B66A-64D1F1A6737C}.Release|x86.Build.0 = Release|Win32
+		{A15AD743-24AA-4C5C-8373-5EB5684AEC18}.Acad2017|x64.ActiveCfg = Acad2017|x64
+		{A15AD743-24AA-4C5C-8373-5EB5684AEC18}.Acad2017|x64.Build.0 = Acad2017|x64
+		{A15AD743-24AA-4C5C-8373-5EB5684AEC18}.Acad2017|x86.ActiveCfg = Acad2017|Win32
+		{A15AD743-24AA-4C5C-8373-5EB5684AEC18}.Acad2017|x86.Build.0 = Acad2017|Win32
 		{A15AD743-24AA-4C5C-8373-5EB5684AEC18}.Debug|x64.ActiveCfg = Debug|x64
 		{A15AD743-24AA-4C5C-8373-5EB5684AEC18}.Debug|x64.Build.0 = Debug|x64
 		{A15AD743-24AA-4C5C-8373-5EB5684AEC18}.Debug|x86.ActiveCfg = Debug|Win32

@@ -72,6 +72,9 @@
     <ClInclude Include="Source\edit_curve.h">
       <Filter>Header Files\EditCurve</Filter>
     </ClInclude>
+    <ClInclude Include="Source\database_funcs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\SphericalTree\point2d.cpp">
@@ -103,6 +106,9 @@
     </ClCompile>
     <ClCompile Include="Source\edit_curve.cpp">
       <Filter>Header Files\EditCurve</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\database_funcs.cpp">
+      <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

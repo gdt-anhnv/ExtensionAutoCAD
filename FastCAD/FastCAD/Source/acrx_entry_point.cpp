@@ -5,6 +5,7 @@
 #include "blk_ref_func.h"
 #include "editor_reactor.h"
 #include "edit_curve.h"
+#include "database_funcs.h"
 
 #define GROUPNAME					L"PTFasterCommand"
 #define CONTOURLINE					L"ContourLine"
@@ -18,6 +19,7 @@
 #define CONNECT_LINES				L"ConnectLines"
 #define CHANGE_BLK_NAME				L"ChangeBlkName"
 #define SAVE_DXF					L"SaveDXF"
+#define SCRAPER_NUM					L"ScraperNum"
 
 #define TEST						L"Test"
 
@@ -30,6 +32,7 @@ std::wstring command_name[] = {
 	CONNECT_LINES,
 	CHANGE_BLK_NAME,
 	SAVE_DXF,
+	SCRAPER_NUM,
 	TEST
 };
 
@@ -53,6 +56,10 @@ static AcRxFunctionPtr GetFuncs(std::wstring cmd)
 		return EditCurve::ConnectLine;
 	if (0 == cmd.compare(CHANGE_BLK_NAME))
 		return BlkRefFunc::ChangeBlkName;
+	if (0 == cmd.compare(SAVE_DXF))
+		return DatabaseFuncs::SaveDXF;
+	if (0 == cmd.compare(SCRAPER_NUM))
+		return EditCurve::ScraperNum;
 	if (0 == cmd.compare(TEST))
 		return InstanceBalloon::Test;
 }
@@ -83,13 +90,13 @@ extern "C" AcRx::AppRetCode acrxEntryPoint(AcRx::AppMsgCode msg, void* appId)
 	case AcRx::kInitAppMsg:
 		acrxUnlockApplication(appId);
 		acrxRegisterAppMDIAware(appId);
-		acutPrintf(_T("\n PTFaster (by Hicas Solution) loaded! \n"));
+		acutPrintf(_T("\n FastCAD (by gdt.anv@gmail.com) loaded! \n"));
 		InitCommands();
 		//FCEditorReactor::rxInit();
 		//reactor = new FCEditorReactor();
 		break;
 	case AcRx::kUnloadAppMsg:
-		acutPrintf(_T("\n PTFaster (by Hicas Solution) unloaded! \n"));
+		acutPrintf(_T("\n FastCAD (by gdt.anv@gmail.com) unloaded! \n"));
 		DestroyCommands();
 		//delete reactor;
 		//deleteAcRxClass(FCEditorReactor::desc());

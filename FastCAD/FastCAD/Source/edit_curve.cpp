@@ -1,4 +1,4 @@
-#include "edit_curve.h"
+﻿#include "edit_curve.h"
 #include "../../AcadFuncs/Source/acad_funcs_header.h"
 #include "../../AcadFuncs/Source/Wrap/acad_obj_wrap.h"
 
@@ -23,7 +23,10 @@ void EditCurve::ConnectLine()
 		ObjectWrap<AcDbLine> fline(DBObject::OpenObjectById<AcDbLine>(fid));
 		ObjectWrap<AcDbLine> sline(DBObject::OpenObjectById<AcDbLine>(sid));
 
+		AcString layer = fline.object->layer();
+
 		AcDbLine* line = new AcDbLine(fline.object->startPoint(), fline.object->endPoint());
+		line->setLayer(layer);
 
 		if (fline.object->startPoint().distanceTo(sline.object->startPoint()) >
 			line->startPoint().distanceTo(line->endPoint()))
@@ -68,4 +71,31 @@ void EditCurve::ConnectLine()
 	catch (...)
 	{
 	}
+}
+
+void EditCurve::ScraperNum()
+{
+	AcDbObjectIdArray ids = UserFuncs::UserGetEnts();
+	double total_len = 0.0;
+	for (int i = 0; i < ids.length(); i++)
+	{
+		ObjectWrap<AcDbLine> line_wrap(DBObject::OpenObjectById<AcDbLine>(ids[i]));
+		if (nullptr != line_wrap.object)
+		{
+			total_len +=
+				line_wrap.object->startPoint().distanceTo(line_wrap.object->endPoint());
+			continue;
+		}
+
+		ObjectWrap<AcDbArc> curve_wrap(DBObject::OpenObjectById<AcDbArc>(ids[i]));
+		if (nullptr != curve_wrap.object)
+		{
+			total_len += curve_wrap.object->length();
+			continue;
+		}
+	}
+
+	ads_real div;
+	acedGetReal(L"Nhập số chia: ", &div);
+	acutPrintf(L"%f", total_len / div);
 }

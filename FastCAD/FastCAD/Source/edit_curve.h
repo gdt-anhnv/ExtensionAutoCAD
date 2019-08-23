@@ -5,6 +5,7 @@ class EditCurve
 {
 public:
 	static void ConnectLine();
+	static void ScraperNum();
 };
 
 #endif
