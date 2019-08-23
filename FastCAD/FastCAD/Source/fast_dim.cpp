@@ -46,7 +46,7 @@ void FastDim::DoFastDim()
 		AcGePoint3d base_pnt = UserFuncs::UserGetPoint(L"Chọn 1 điểm:");
 
 		//Detect all the circles
-		auto ent_ids = ARXFuncs::GetEntsInsidePolyline2(obj_ids[0]);
+		auto ent_ids = ARXFuncs::GetEntsInsidePolyline(obj_ids[0]);
 		if (0 == ent_ids.length())
 			return;
 

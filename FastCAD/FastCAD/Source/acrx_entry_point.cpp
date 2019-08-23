@@ -6,6 +6,7 @@
 #include "editor_reactor.h"
 #include "edit_curve.h"
 #include "database_funcs.h"
+#include "staticstic_blk_layout.h"
 
 #define GROUPNAME					L"PTFasterCommand"
 #define CONTOURLINE					L"ContourLine"
@@ -21,10 +22,15 @@
 #define SAVE_DXF					L"SaveDXF"
 #define SCRAPER_NUM					L"ScraperNum"
 
+#define STATICSTIC_BLK				L"TK_LAYOUT"
+
 #define TEST						L"Test"
 
+
+#define _TK_BLK_
 std::wstring groupname = GROUPNAME;
 std::wstring command_name[] = {
+#ifdef 0
 	INSTANCE_BALLOON,
 	COPY_NAME_BLK,
 	COPY_BLK,
@@ -34,6 +40,10 @@ std::wstring command_name[] = {
 	SAVE_DXF,
 	SCRAPER_NUM,
 	TEST
+#endif
+#ifdef _TK_BLK_
+	STATICSTIC_BLK
+#endif
 };
 
 static AcRxFunctionPtr GetFuncs(std::wstring cmd)
@@ -60,6 +70,8 @@ static AcRxFunctionPtr GetFuncs(std::wstring cmd)
 		return DatabaseFuncs::SaveDXF;
 	if (0 == cmd.compare(SCRAPER_NUM))
 		return EditCurve::ScraperNum;
+	if (0 == cmd.compare(STATICSTIC_BLK))
+		return LayoutFuncs::StaticsticBlkLayout;
 	if (0 == cmd.compare(TEST))
 		return InstanceBalloon::Test;
 }
