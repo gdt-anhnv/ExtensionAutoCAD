@@ -318,6 +318,7 @@
     <ClInclude Include="Source\SphericalTree\point2d.h" />
     <ClInclude Include="Source\SphericalTree\mtree.h" />
     <ClInclude Include="Source\SphericalTree\vector2d.h" />
+    <ClInclude Include="Source\staticstic_blk_layout.h" />
     <ClInclude Include="Source\triangle.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
@@ -332,6 +333,7 @@
     <ClCompile Include="Source\instance_balloon.cpp" />
     <ClCompile Include="Source\SphericalTree\point2d.cpp" />
     <ClCompile Include="Source\SphericalTree\vector2d.cpp" />
+    <ClCompile Include="Source\staticstic_blk_layout.cpp" />
     <ClCompile Include="Source\triangle.cpp" />
   </ItemGroup>
   <ItemGroup>

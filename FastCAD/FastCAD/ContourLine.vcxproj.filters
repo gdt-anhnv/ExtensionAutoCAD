@@ -31,6 +31,9 @@
     <Filter Include="Header Files\EditCurve">
       <UniqueIdentifier>{c49b3c8e-1e30-4151-b6dd-8dc7228e8fcf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Layout">
+      <UniqueIdentifier>{6d591310-dd6a-4b6c-b9d5-55e4ff63926d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\SphericalTree\node.h">
@@ -75,6 +78,9 @@
     <ClInclude Include="Source\database_funcs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\staticstic_blk_layout.h">
+      <Filter>Header Files\Layout</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\SphericalTree\point2d.cpp">
@@ -109,6 +115,9 @@
     </ClCompile>
     <ClCompile Include="Source\database_funcs.cpp">
       <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\staticstic_blk_layout.cpp">
+      <Filter>Header Files\Layout</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
