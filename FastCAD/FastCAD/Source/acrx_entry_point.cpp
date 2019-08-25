@@ -30,7 +30,7 @@
 #define _TK_BLK_
 std::wstring groupname = GROUPNAME;
 std::wstring command_name[] = {
-#ifdef 0
+#if 0
 	INSTANCE_BALLOON,
 	COPY_NAME_BLK,
 	COPY_BLK,
