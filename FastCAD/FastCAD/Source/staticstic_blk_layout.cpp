@@ -7,10 +7,11 @@
 #include <windows.h>
 #include <vector>
 
-#define BLK_STATISTIC_NAME				L"TestingBlk"
-#define TITLE_ATT_NAME					L"TITLE"
-#define NAME_DRAWING_ATT_NAME			L"NAMEDRAWING"
-#define SCALE_ATT_NAME					L"SCALE"
+#define BLK_STATISTIC_NAME				L"DANHSACHBANVE"
+#define TITLE_ATT_NAME					L"TENBANVE-ENGTEXT"
+#define SECOND_TITLE_ATT_NAME			L"TENBANVE-VNTEXT"
+#define NAME_DRAWING_ATT_NAME			L"KIHIEUBANVE"
+#define SCALE_ATT_NAME					L"TILEBANVE"
 
 #define TABLE_ROW_HEIGHT				1000
 #define TABLE_NAME_COL_WIDTH			10000
@@ -22,34 +23,42 @@ struct TextData
 {
 	std::wstring value;
 	double text_height;
+	std::wstring layer;
 
 	TextData() :
 		value(std::wstring(L"")),
-		text_height(TEXT_HEIGHT)
+		text_height(TEXT_HEIGHT),
+		layer(std::wstring(L""))
 	{
 
 	}
 
-	TextData(std::wstring val, double th) :
+	TextData(std::wstring val, double th, std::wstring lay) :
 		value(val),
-		text_height(th)
+		text_height(th),
+		layer(lay)
 	{}
 
 	static AcDbText* CreateText(const TextData& td, AcGePoint3d pos)
 	{
-		return new AcDbText(pos, td.value.c_str(), AcDbObjectId::kNull, td.text_height);
+		AcDbText* text = new AcDbText(pos, td.value.c_str(), AcDbObjectId::kNull, td.text_height);
+		text->setLayer(td.layer.c_str());
+
+		return text;
 	}
 };
 
 struct StaticsticData
 {
 	TextData title;
+	TextData second_title;
 	TextData name;
 	TextData scale;
 };
 
 static std::vector<StaticsticData> GetData();
 static void DrawTable(const std::vector<StaticsticData>& data, const AcGePoint3d& ins_pnt);
+static void Testing();
 void LayoutFuncs::StaticsticBlkLayout()
 {
 	try
@@ -63,21 +72,56 @@ void LayoutFuncs::StaticsticBlkLayout()
 	}
 }
 
+void Testing()
+{
+	AcDbLayoutManager* layout_man = acdbHostApplicationServices()->layoutManager();
+	AcDbDictionary* layout_dict = nullptr;
+	if (Acad::eOk == acdbCurDwg()->getLayoutDictionary(layout_dict))
+	{
+		AcDbObject* obj = nullptr;
+		ACHAR* layout_name;
+		AcDbDictionaryIterator* dict_iter = layout_dict->newIterator();
+
+		for (; !dict_iter->done(); dict_iter->next())
+		{
+			dict_iter->getObject(obj);
+			AcDbLayout* layout = AcDbLayout::cast(obj);
+			layout->getLayoutName(layout_name);
+			layout->close();
+		}
+
+		delete dict_iter;
+	}
+
+	layout_dict->close();
+}
+
 std::vector<StaticsticData> GetData()
 {
 	std::vector<StaticsticData> ret = std::vector<StaticsticData>();
 
-	ObjectWrap<AcDbBlockTable> blk_tbl_wrap(DBObject::GetBlockTable(acdbCurDwg()));
+	ObjectWrap<AcDbDictionary> layout_dict_wrap(nullptr);
+	if (Acad::eOk != acdbCurDwg()->getLayoutDictionary(layout_dict_wrap.object))
+		return ret;
 
-	AcDbBlockTableIterator* iter = nullptr;
-	blk_tbl_wrap.object->newIterator(iter);
-
-	for (; !iter->done(); iter->step())
+	AcDbDictionaryIterator* dict_iter = layout_dict_wrap.object->newIterator();
+	for (; !dict_iter->done(); dict_iter->next())
 	{
-		AcDbObjectId id = AcDbObjectId::kNull;
-		iter->getRecordId(id);
+		AcDbObjectId btr_id = AcDbObjectId::kNull;
+		{
+			ObjectWrap<AcDbObject> layout_wrap(nullptr);
+			dict_iter->getObject(layout_wrap.object);
+			AcDbLayout* layout = AcDbLayout::cast(layout_wrap.object);
 
-		ObjectWrap<AcDbBlockTableRecord> blk_tbl_rcd_wrap(DBObject::OpenObjectById<AcDbBlockTableRecord>(id));
+			btr_id = layout->getBlockTableRecordId();
+		}
+	
+		ObjectWrap<AcDbBlockTableRecord> blk_tbl_rcd_wrap(DBObject::OpenObjectById<AcDbBlockTableRecord>(btr_id));
+
+		AcString btr_name = AcString();
+		blk_tbl_rcd_wrap.object->getName(btr_name);
+		if (0 == btr_name.compare(ACDB_MODEL_SPACE))
+			continue;
 
 		AcDbBlockTableRecordIterator* rcd_iter = nullptr;
 		blk_tbl_rcd_wrap.object->newIterator(rcd_iter);
@@ -100,11 +144,13 @@ std::vector<StaticsticData> GetData()
 			{
 				ObjectWrap<AcDbAttribute> attribute(DBObject::OpenObjectById<AcDbAttribute>(att_ids[i]));
 				if (0 == std::wstring(attribute.object->tag()).compare(TITLE_ATT_NAME))
-					data.title = TextData(attribute.object->textString(), TEXT_HEIGHT);
+					data.title = TextData(attribute.object->textString(), TEXT_HEIGHT, attribute.object->layer());
 				else if (0 == std::wstring(attribute.object->tag()).compare(NAME_DRAWING_ATT_NAME))
-					data.name = TextData(attribute.object->textString(), TEXT_HEIGHT);
+					data.name = TextData(attribute.object->textString(), TEXT_HEIGHT, attribute.object->layer());
 				else if (0 == std::wstring(attribute.object->tag()).compare(SCALE_ATT_NAME))
-					data.scale = TextData(attribute.object->textString(), TEXT_HEIGHT);
+					data.scale = TextData(attribute.object->textString(), TEXT_HEIGHT, attribute.object->layer());
+				else if (0 == std::wstring(attribute.object->tag()).compare(SECOND_TITLE_ATT_NAME))
+					data.second_title = TextData(attribute.object->textString(), TEXT_HEIGHT, attribute.object->layer());
 			}
 
 			ret.push_back(data);
@@ -114,8 +160,7 @@ std::vector<StaticsticData> GetData()
 		delete rcd_iter;
 	}
 
-	delete iter;
-
+	delete dict_iter;
 	return ret;
 }
 
@@ -123,8 +168,11 @@ void DrawTable(const std::vector<StaticsticData>& data, const AcGePoint3d& ins_p
 {
 	for (int i = 0; i < data.size(); i++)
 	{
-		DBObject::AppendToModelSpace(TextData::CreateText(data[i].title,
+		DBObject::AppendToModelSpace(TextData::CreateText(data[i].second_title,
 			ins_pnt - i * TABLE_ROW_HEIGHT * AcGeVector3d::kYAxis));
+
+		DBObject::AppendToModelSpace(TextData::CreateText(data[i].title,
+			ins_pnt - (i * TABLE_ROW_HEIGHT + 360.0)* AcGeVector3d::kYAxis));
 
 		DBObject::AppendToModelSpace(TextData::CreateText(data[i].name,
 			ins_pnt - i * TABLE_ROW_HEIGHT * AcGeVector3d::kYAxis + TABLE_NAME_COL_WIDTH * AcGeVector3d::kXAxis));

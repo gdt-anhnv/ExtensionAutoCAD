@@ -245,7 +245,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>_WINDOWS;NDEBUG;_AFXEXT;_AFXDLL;_USING_ARX_;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(OBJECTARX_2019)\inc-x64;$(OBJECTARX_2019)\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OBJECTARX_2019)\inc-x64;$(OBJECTARX_2019)\inc;C:\Autodesk\Autodesk_ObjectARX_2019_Win_64_and_32_Bit\inc-x64;C:\Autodesk\Autodesk_ObjectARX_2019_Win_64_and_32_Bit\inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
