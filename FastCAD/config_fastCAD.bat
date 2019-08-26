@@ -7,7 +7,7 @@ rem setx OBJECTARX_2016 "D:\Hexagon\CADWorx\CADWorx Development\ObjectARX\2016"
 
 rem setx OBJECTARX_2014	"C:\Autodesk\Autodesk_ObjectARX_2014_Win_64_and_32Bit"
 
-rem setx OBJECTARX_2018 "C:\Autodesk\Autodesk_ObjectARX_2018_Win_64_and_32_Bit"
+setx OBJECTARX_2018 "E:\ObjectARX\Autodesk_ObjectARX_2018_Win_64_and_32_Bit"
 
 rem setx OBJECTARX_2017 "D:\Hexagon\CADWorx\CADWorx Development\ObjectARX\2017"
 
