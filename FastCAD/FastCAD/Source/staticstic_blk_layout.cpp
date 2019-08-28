@@ -3,6 +3,8 @@
 #include "../../AcadFuncs/Source/acad_funcs_header.h"
 #include "../../AcadFuncs/Source/Wrap/acad_obj_wrap.h"
 
+#include "acaplmgr.h"
+
 #include <iostream>
 #include <windows.h>
 #include <vector>
@@ -70,6 +72,88 @@ void LayoutFuncs::StaticsticBlkLayout()
 	{
 
 	}
+}
+
+static AcDbDictionaryIterator* GetLayoutIter()
+{
+	ObjectWrap<AcDbDictionary> layout_dict_wrap(nullptr);
+	if (Acad::eOk != acdbCurDwg()->getLayoutDictionary(layout_dict_wrap.object))
+		return nullptr;
+
+	return layout_dict_wrap.object->newIterator();
+}
+
+void LayoutFuncs::IndexLayout()
+{
+	try
+	{
+		auto layout_data = GetData();
+		if (0 == layout_data.size())
+			return;
+
+		std::wstring name = layout_data[0].name.value;
+		name = name.substr(0, name.length() - 2);
+
+		std::list<std::wstring> curr_name = std::list<std::wstring>();
+		std::list<AcDbHandle> handles = std::list<AcDbHandle>();
+		//reset name layout
+		int count = 0;
+		{
+			int index = 1;
+			AcDbDictionaryIterator* dict_iter = GetLayoutIter();
+			for (; !dict_iter->done(); dict_iter->next())
+			{
+				count++;
+				std::wstring layout_name = L"our_layout-";
+				layout_name += std::to_wstring(index++);
+
+				ObjectWrap<AcDbObject> layout_wrap(nullptr);
+				dict_iter->getObject(layout_wrap.object);
+				AcDbLayout* layout = AcDbLayout::cast(layout_wrap.object);
+				ACHAR* tmp;
+				layout->getLayoutName(tmp);
+				curr_name.push_back(tmp);
+				AcDbHandle tmp_handle = AcDbHandle();
+				layout_wrap.object->getAcDbHandle(tmp_handle);
+				handles.push_back(tmp_handle);
+				Acad::ErrorStatus err = layout_wrap.object->upgradeOpen();
+				err = layout->setLayoutName(layout_name.c_str());
+			}
+
+			delete dict_iter;
+		}
+
+		{
+			int index = 1;
+			AcDbDictionaryIterator* dict_iter = GetLayoutIter();
+			for (; !dict_iter->done(); dict_iter->next())
+			{
+				AcDbObjectId btr_id = AcDbObjectId::kNull;
+				{
+					ObjectWrap<AcDbObject> layout_wrap(nullptr);
+					dict_iter->getObject(layout_wrap.object);
+					AcDbLayout* layout = AcDbLayout::cast(layout_wrap.object);
+					std::wstring layout_name = name;
+					if (index < 10)
+						layout_name += L"0";
+					layout_name += std::to_wstring(index);
+
+					Acad::ErrorStatus err = layout_wrap.object->upgradeOpen();
+					ACHAR* test_name;
+					layout->getLayoutName(test_name);
+					err = layout->setLayoutName(layout_name.c_str());
+
+					index++;
+				}
+			}
+
+			delete dict_iter;
+		}
+		AcApLayoutManager* layout_mgr = (AcApLayoutManager*)acdbHostApplicationServices()->layoutManager();
+		layout_mgr->updateLayoutTabs();
+	}
+	catch(...)
+	{ }
 }
 
 void Testing()

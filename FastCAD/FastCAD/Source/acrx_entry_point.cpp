@@ -23,6 +23,7 @@
 #define SCRAPER_NUM					L"ScraperNum"
 
 #define STATICSTIC_BLK				L"TK_LAYOUT"
+#define INDEX_LAYOUT				L"INDEX_LAYOUT"
 
 #define TEST						L"Test"
 
@@ -31,18 +32,19 @@
 std::wstring groupname = GROUPNAME;
 std::wstring command_name[] = {
 #if 0
-	INSTANCE_BALLOON,
-	COPY_NAME_BLK,
-	COPY_BLK,
-	PASTE_BLK,
-	CONNECT_LINES,
-	CHANGE_BLK_NAME,
-	SAVE_DXF,
-	SCRAPER_NUM,
-	TEST
+	INSTANCE_BALLOON
+	,COPY_NAME_BLK
+	,COPY_BLK
+	,PASTE_BLK
+	,CONNECT_LINES
+	,CHANGE_BLK_NAME
+	,SAVE_DXF
+	,SCRAPER_NUM
+	,TEST
 #endif
 #ifdef _TK_BLK_
 	STATICSTIC_BLK
+	,INDEX_LAYOUT
 #endif
 };
 
@@ -72,6 +74,8 @@ static AcRxFunctionPtr GetFuncs(std::wstring cmd)
 		return EditCurve::ScraperNum;
 	if (0 == cmd.compare(STATICSTIC_BLK))
 		return LayoutFuncs::StaticsticBlkLayout;
+	if (0 == cmd.compare(INDEX_LAYOUT))
+		return LayoutFuncs::IndexLayout;
 	if (0 == cmd.compare(TEST))
 		return InstanceBalloon::Test;
 }

@@ -5,6 +5,7 @@ class LayoutFuncs
 {
 public:
 	static void StaticsticBlkLayout();
+	static void IndexLayout();
 };
 
 #endif
